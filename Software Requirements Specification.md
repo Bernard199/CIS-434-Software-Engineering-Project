@@ -27,7 +27,16 @@
 ### 2.0 Usage Scenario
 
 #### 2.1 User Profiles
-Describe the profiles of all user categories.
+- Regular User:
+   - Can create, update, delete, and manage tasks.
+   - Can organize tasks into categories and set priorities or deadlines.
+   - Can view tasks in a list or calendar view, and mark tasks as completed.
+- Admin User:
+   - Has all the capabilities of a regular user.
+   - Can manage user accounts (e.g., creating, deleting, and assigning roles to users).
+   - Can access system settings, such as configuring the self-hosted or cloud deployment options.
+- Business Owner/Manager (optional):
+   - For the business version of the system, a business owner or manager could have access to team-level task management, assigning tasks to employees, and viewing overall project progress.
 
 #### 2.2 Use-Cases
 Present all use-cases for the software.
