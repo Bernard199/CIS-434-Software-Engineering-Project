@@ -39,7 +39,20 @@
    - For the business version of the system, a business owner or manager could have access to team-level task management, assigning tasks to employees, and viewing overall project progress.
 
 #### 2.2 Use-Cases
-Present all use-cases for the software.
+- Create Task:
+   - The user can create a new task by providing a title, category, priority level, and deadline.
+  
+- Edit Task:
+   - The user can modify an existing task’s details (title, category, priority, or deadline).
+  
+- Delete Task:
+   - The user can remove a task from their task list.
+  
+- Mark Task as Completed:
+   - The user can mark a task as completed.
+  
+- View Task List:
+   - The user can view a list of all tasks, with the ability to filter by category, priority, or deadline.
 
 #### 2.3 Special Usage Considerations
 List any special requirements or considerations associated with the use of the software.
