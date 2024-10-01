@@ -1,6 +1,6 @@
 # Software Requirements Specification
 
-## Project Title
+## Task Management Software
 *Team members: Chase Ivanicic, Bernard Schweter*
 
 ---
@@ -8,10 +8,12 @@
 ### 1.0 Introduction
 
 #### 1.1 Goals and Objectives
-Provide a description of the overall goals and software objectives.
+  - The goal of this software is to create an easy-to-use set of task management tools that can be accessed through a web portal. 
+  - The objective is to provide users with a simple interface to create, organize, and manage tasks efficiently in an online environment.
 
 #### 1.2 Statement of Scope
-Describe the software's purpose, major inputs, processing functionalities, and outputs without implementation details.
+  - This software will allow users to create, update, delete, and manage tasks through a web-based interface. Users will be able to categorize tasks, set priorities, assign deadlines, and mark tasks as completed. 
+    Additionally, users can view upcoming tasks and filter tasks based on category or priority, enabling them to efficiently track progress and manage their workload.
 
 #### 1.3 Software Context
 Describe the business or product line context in which the software operates. Discuss relevant strategic issues to give an understanding of the "big picture."
