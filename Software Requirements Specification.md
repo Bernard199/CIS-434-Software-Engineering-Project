@@ -16,7 +16,7 @@
     Additionally, users can view upcoming tasks and filter tasks based on category or priority, enabling them to efficiently track progress and manage their workload.
 
 #### 1.3 Software Context
-Describe the business or product line context in which the software operates. Discuss relevant strategic issues to give an understanding of the "big picture."
+  - This software is intended for individuals and small business to keep track of personal tasks and larger projects.
 
 #### 1.4 Major Constraints
 Mention any business or product line constraints that will impact how the software is specified, designed, implemented, or tested.
