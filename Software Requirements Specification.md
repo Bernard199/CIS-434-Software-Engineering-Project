@@ -19,7 +19,8 @@
   - This software is intended for individuals and small business to keep track of personal tasks and larger projects.
 
 #### 1.4 Major Constraints
-Mention any business or product line constraints that will impact how the software is specified, designed, implemented, or tested.
+  - The development of this software is constrained by limited resources, as it is a zero-profit, zero-funded project. The software must be developed using open-source or free tools, and it should be lightweight to     
+    minimize hosting and infrastructure costs.
 
 ---
 
