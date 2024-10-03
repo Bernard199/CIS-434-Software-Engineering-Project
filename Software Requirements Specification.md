@@ -19,8 +19,7 @@
   - This software is intended for individuals and small business to keep track of personal tasks and larger projects.
 
 #### 1.4 Major Constraints
-  - The development of this software is constrained by limited resources, as it is a zero-profit, zero-funded project. The software must be developed using open-source or free tools, and it should be lightweight to     
-    minimize hosting and infrastructure costs.
+  - The development of this software is constrained by limited resources, as it is a zero-profit, zero-funded project. The software must be developed using open-source or free tools. The software should be lightweight to minimize hosting and infrastructure costs.
 
 ---
 
@@ -159,14 +158,18 @@
 
 ### 4.0 Functional Model and Description
 
-#### 4.1 Description of Major Functions
-Uniquely identify and describe each major software function.
+- **User Authentication**:
+  - Allows users to register, log in, and manage their account securely.
 
-##### 4.1.1 Requirement 1
-*...*
+- **Task Management**:
+  - Users can create, edit, view, and delete tasks.
+  - Users can set deadlines, priorities, and categories.
 
-##### 4.1.n Requirement N
-*...*
+- **Task History Tracking**:
+  - Keeps track of changes to task status over time.
+
+- **Audit Log**:
+  - Monitors user actions for system accountability.
 
 #### 4.2 Software Interface Description
 Describe software interfaces, including machine interfaces, system interfaces, and human interfaces.
