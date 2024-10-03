@@ -148,7 +148,7 @@
 
 
 ##### 3.1.3 Complete Data Model
-Develop an ERD for the software.
+![ER Diagram](UML/Task%20Management%20Database.png)
 
 ##### 3.1.4 Data Dictionary
 Provide a reference to the data dictionary (maintained electronically).
