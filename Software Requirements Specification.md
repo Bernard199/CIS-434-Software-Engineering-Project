@@ -172,18 +172,25 @@
   - Monitors user actions for system accountability.
 
 #### 4.2 Software Interface Description
-Describe software interfaces, including machine interfaces, system interfaces, and human interfaces.
 
-##### 4.2.1 External Machine Interfaces
-Describe interfaces to other machines (computers or devices).
+- **External Machine Interfaces**:
+  - The system will not interact with external hardware. All operations are self-contained within the local environment.
 
-##### 4.2.2 External System Interfaces
-Describe interfaces to other systems, products, or networks.
+- **External System Interfaces**:
+  - Interacts with the database for user authentication, task management, audit logs, and history tracking via API requests.
 
-##### 4.2.3 Human Interface
-Provide an overview of any human interfaces to be designed for the software.
+- **Human Interface**:
+  - The user interacts with the web portal for task creation, editing, and management. The interface will include input forms, data views, and status updates.
 
 ---
 
 ### 5.0 Restrictions, Limitations, and Constraints
-Outline any special issues that impact the specification, design, or implementation of the software.
+
+- **Budget Constraints**:
+  - The project has zero funding, so only free or open-source tools and libraries will be used.
+
+- **Hosting Constraints**:
+  - Currently, only self-hosting is possible without funding.
+
+- **Feature Scope**:
+  - Due to time and resource limitations, only core functionality (task management, history tracking, audit) will be developed.
