@@ -10,5 +10,5 @@ This project is aimed at developing a simple, easy-to-use task management softwa
 
 ### Documentation
 
-- [Project Plan](./path_to_project_plan_file.md)
-- [Software Requirements Specification](./path_to_specification_file.md)
+- [Project Plan](Project Plan.md)
+- [Software Requirements Specification](Software Requirements Specification.md)
