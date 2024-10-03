@@ -84,7 +84,7 @@ We are using an Agile approach for iterative development.
   - GitHub
   - Discord
   - Outlook
-  - mySql or similar database
+  - MySql or similar database
 
 - **GitHub Repository**:
    - [https://github.com/Bernard199/CIS-434-Software-Engineering-Project](https://github.com/Bernard199/CIS-434-Software-Engineering-Project)
