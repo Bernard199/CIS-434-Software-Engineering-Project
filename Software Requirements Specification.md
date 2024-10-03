@@ -148,7 +148,9 @@
 
 
 ##### 3.1.3 Complete Data Model
-![ER Diagram](UML/Task%20Management%20Database.png)
+![ERD Diagram](UML/Task%20Management%20Database%20Dark.png)
+###### Light Version
+[Task Management Database Light.png](UML/Task%20Management%20Database%20Light.png)
 
 ##### 3.1.4 Data Dictionary
 Provide a reference to the data dictionary (maintained electronically).
