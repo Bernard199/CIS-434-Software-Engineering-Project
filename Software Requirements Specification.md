@@ -27,48 +27,125 @@
 ### 2.0 Usage Scenario
 
 #### 2.1 User Profiles
-- Regular User:
+- **Regular User**
    - Can create, update, delete, and manage tasks.
    - Can organize tasks into categories and set priorities or deadlines.
    - Can view tasks in a list or calendar view, and mark tasks as completed.
-- Admin User:
+- **Admin User**
    - Has all the capabilities of a regular user.
    - Can manage user accounts (e.g., creating, deleting, and assigning roles to users).
    - Can access system settings, such as configuring the self-hosted or cloud deployment options.
-- Business Owner/Manager (optional):
+- **Business Owner/Manager**
    - For the business version of the system, a business owner or manager could have access to team-level task management, assigning tasks to employees, and viewing overall project progress.
 
 #### 2.2 Use-Cases
-- Create Task:
+- **Create Task**
    - The user can create a new task by providing a title, category, priority level, and deadline.
   
-- Edit Task:
+- **Edit Task**
    - The user can modify an existing task’s details (title, category, priority, or deadline).
   
-- Delete Task:
+- **Delete Task**
    - The user can remove a task from their task list.
   
-- Mark Task as Completed:
+- **Mark Task as Completed**
    - The user can mark a task as completed.
   
-- View Task List:
+- **View Task List**
    - The user can view a list of all tasks, with the ability to filter by category, priority, or deadline.
 
 #### 2.3 Special Usage Considerations
-List any special requirements or considerations associated with the use of the software.
 
----
+
+   - The software should be accessible through modern web browsers on desktop devices.
+   - It should be simple to use with minimal setup required.
+   - The system should allow for basic functionality with no need for extensive documentation or training.
 
 ### 3.0 Data Model and Description
 
 #### 3.1 Data Description
-Describe the information domain for the software.
+   - **Task Data**
+      - Each task will contain a title, description, category, priority level, deadline, and completion status.
+   - **User Data**
+      - Users will have a username, password, role, and contact information. 
 
 ##### 3.1.1 Data Objects
-List and describe the data objects and their major attributes.
+###### Data Base
+---
+- **Users Table**
+  - `user_id` (Primary Key)
+  - `username`
+  - `password`
+  - `role_id` (Foreign Key)
+
+- **Roles Table**
+  - `role_id` (Primary Key)
+  - `role_name` (e.g., Admin, Regular User)
+
+- **Tasks Table**
+  - `task_id` (Primary Key)
+  - `user_id` (Foreign Key)
+  - `title`
+  - `description`
+  - `category`
+  - `priority`
+  - `deadline`
+  - `status`
+
+- **Audit Table** 
+  - `audit_id` (Primary Key)
+  - `user_id` (Foreign Key)
+  - `action` 
+  - `timestamp`
+
+- **Task History Table** 
+  - `history_id` (Primary Key)
+  - `task_id` (Foreign Key linking to the Tasks table)
+  - `previous_status`
+  - `new_status`
+  - `change_timestamp`
+    
+  ###### API
+---
+- **Authentication API**
+  - `POST /login`
+  - `POST /logout`
+  - `POST /register`
+
+- **User Management API**
+  - `GET /users`
+  - `PUT /users/{user_id}`
+  - `DELETE /users/{user_id}`
+
+- **Task Management API**
+  - `POST /tasks`
+  - `GET /tasks`
+  - `PUT /tasks/{task_id}`
+  - `DELETE /tasks/{task_id}`
 
 ##### 3.1.2 Relationships
-Define relationships among data objects using an ERD (Entity-Relationship Diagram)-like form.
+###### Primary Keys, Foreign Keys, Relationship Type, and Participation
+
+1. **Users &rarr; Tasks**
+   - **Primary Key**: `user_id` (Users) &rarr; **Foreign Key**: `user_id` (Tasks)
+   - **Relationship Type**: One-to-Many
+   - **Participation**: Optional for Users, Mandatory for Tasks
+
+2. **Roles &rarr; Users**
+   - **Primary Key**: `role_id` (Roles) &rarr; **Foreign Key**: `role_id` (Users)
+   - **Relationship Type**: One-to-Many
+   - **Participation**: Optional for Roles, Mandatory for Users
+
+3. **Tasks &rarr; Task History** 
+   - **Primary Key**: `task_id` (Tasks) &rarr; **Foreign Key**: `task_id` (Task History)
+   - **Relationship Type**: One-to-Many
+   - **Participation**: Optional for Tasks, Mandatory for Task History
+
+4. **Users &rarr; Audit** 
+   - **Primary Key**: `user_id` (Users) &rarr; **Foreign Key**: `user_id` (Audit)
+   - **Relationship Type**: One-to-Many
+   - **Participation**: Optional for Users, Mandatory for Audit
+
 
 ##### 3.1.3 Complete Data Model
 Develop an ERD for the software.
