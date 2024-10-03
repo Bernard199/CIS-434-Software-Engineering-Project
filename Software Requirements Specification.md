@@ -1,7 +1,7 @@
 # Software Requirements Specification
 
 ## Task Management Software
-*Team members: Chase Ivanicic, Bernard Schweter*
+*Team: Chase Ivanicic, Bernard Schweter*
 
 ---
 
@@ -152,8 +152,8 @@
 ###### Light Version
 [Task Management Database Light.png](UML/Task%20Management%20Database%20Light.png)
 
-##### 3.1.4 Data Dictionary
-Provide a reference to the data dictionary (maintained electronically).
+<!-- #TODO: Add 3.1.4 Data Dictionary -->
+<!-- Provide a reference to the data dictionary (maintained electronically). -->
 
 ---
 
