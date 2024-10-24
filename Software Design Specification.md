@@ -1,89 +1,110 @@
-# SOFTWARE DESIGN SPECIFICATION 
+# Software Design Specification (SDS)
 
-## 1.0 Introduction 
+## Task Management Software  
+*Team: Chase Ivanicic, Bernard Schweter*
 
-This section provides an overview of the entire design document. This document describes all data, architectural, interface and component-level design for the software. 
+---
 
-### 1.1 Goals and objectives 
+### 1.0 Introduction
 
-Overall goals and software objectives are described. 
+#### 1.1 Goals and Objectives
+The primary goal of the software is to deliver a lightweight, easy-to-use task management tool that can be accessed through a web portal. The software aims to:
+- Provide users with a web-based platform to create, update, delete, and manage tasks effectively.
+- Ensure high responsiveness, with task views loading in under 2 seconds for up to 100 tasks.
+- Design a scalable and modular architecture that can accommodate future enhancements such as task delegation.
 
-### 1.2 Statement of scope 
+#### 1.2 Statement of Scope
+The software will offer a web-based interface that allows users to manage their tasks, including creating, updating, and deleting tasks. Users can categorize tasks, set deadlines, assign priorities, and view upcoming tasks. Core features include:
+- **Task Management**: Creating, viewing, editing, and deleting tasks.
+- **Task Filtering**: Organizing tasks by categories or priorities.
+- **User Authentication**: Secure login, registration, and user role management.
 
-A description of the software is presented. Major inputs, processing functionality, and outputs are described without regard to implementation detail. 
+#### 1.3 Software Context
+The software is intended for individual users and small businesses to manage personal tasks and projects. It will be developed using open-source technologies and hosted on Microsoft Azure, provided by Cleveland State University. The system aims to handle up to 10 concurrent users without performance degradation.
 
-### 1.3 Software context 
+#### 1.4 Major Constraints
+The software development is constrained by:
+- **Budget Limitations**: Only free or open-source tools and libraries will be used.
+- **Hosting Limitations**: The software will be hosted on Microsoft Azure, affecting development flexibility.
+- **Performance Requirements**: The system must support up to 100 tasks per user and up to 10 concurrent users without noticeable performance drops.
 
-The software is placed in a business or product line context. Strategic issues relevant to context are discussed. The intent is for the reader to understand the 'big picture'. 
+---
 
-### 1.4 Major constraints 
+### 2.0 Data Design
 
-Any business or product line constraints that will impact the manner in which the software is to be specified, designed, implemented or tested are noted here. 
+#### 2.1 Data Structures
+- **Task Structure**: Each task will have attributes such as `title`, `description`, `category`, `priority`, `deadline`, and `status`.
+- **User Structure**: Users will have attributes like `user_id`, `username`, `password`, `role`, and `contact_info`.
+- **Role Structure**: Defines user roles (e.g., Admin, Regular User).
 
-## 2.0 Data design 
+#### 2.2 Database Description
+The database will consist of multiple tables:
+- **Users Table**: Stores user information with columns `user_id`, `username`, `password`, `role_id`.
+- **Roles Table**: Defines roles, including `role_id` and `role_name`.
+- **Tasks Table**: Contains task details such as `task_id`, `user_id`, `title`, `category`, `priority`, `deadline`, and `status`.
+- **Audit Table**: Logs user actions, including `audit_id`, `user_id`, `action`, and `timestamp`.
+- **Task History Table**: Tracks changes in task status with columns `history_id`, `task_id`, `previous_status`, `new_status`, and `change_timestamp`.
 
-A description of all data structures and databases. 
+The data design will follow relational database principles with indexed columns for optimized performance in task queries.
 
-### 2.1 Data structures 
+---
 
-Data structures that are available to major portions of the architecture are described. 
+### 3.0 Architectural and Component-Level Design
 
-### 2.2 Database description 
+#### 3.1 Architecture Diagrams
+The system will adopt a three-layer architecture:
+- **Presentation Layer**: Web-based front end for user interaction.
+- **Logic Layer**: Contains core functionality, such as task management, filtering, and authentication.
+- **Data Access Layer**: Interfaces with the database, handling data storage and retrieval.
 
-Database(s) created as part of the application is(are) described. 
+#### 3.2 Description for Components
+- **User Management Component**: Handles user authentication and role management. It interacts with the `Users` and `Roles` tables.
+- **Task Management Component**: Manages task creation, updating, and deletion. Interfaces with the `Tasks` table and the `Task History` for tracking changes.
+- **Audit Component**: Logs user activities to the `Audit` table for accountability.
+- **Task Filtering Component**: Supports viewing tasks based on categories or priorities, optimizing query performance.
 
-## 3.0 Architectural and Component-Level Design
+#### 3.3 External Interface Description
+- **APIs**:
+  - **Authentication API**: Manages user login, logout, and registration.
+  - **Task Management API**: CRUD operations for tasks.
+  - **User Management API**: Admin operations for user accounts.
+- **External Systems**: The software is self-contained, with no external system dependencies except for the Azure hosting environment.
 
-A description of the software architecture is presented.
+---
 
-### 3.1 Architecture Diagrams
+### 4.0 User Interface Design
 
-Various views (logical, process, physical, development) of architecture are presented with descriptions.
+#### 4.1 Description of the User Interface
+The user interface will feature:
+- **Task List View**: Displays tasks in a list format with filtering options.
+- **Task Details Form**: For creating or editing tasks, with fields for title, description, category, priority, and deadline.
+- **User Dashboard**: Displays an overview of tasks, upcoming deadlines, and completed tasks.
+- **Admin Dashboard**: Allows admin users to manage user accounts and system settings.
 
-### 3.2 Description for Components
+#### 4.2 Interface Design Rules
+- **Consistency**: All forms and views will follow a consistent layout and design language.
+- **Responsiveness**: The interface must load within 2 seconds for typical user interactions under normal network conditions.
+- **Accessibility**: The design will follow accessibility standards to ensure usability by people with disabilities.
 
-A description of major software components contained within the architecture is presented. Section 3.2.1 is repeated for each of n components.
+---
 
-#### 3.2.1 Component n Description
+### 5.0 Restrictions, Limitations, and Constraints
+- **Resource Limitations**: The system will only support up to 10 concurrent users and less than 100 tasks per user, given current resource constraints.
+- **Hosting Requirements**: Deployment is limited to the Microsoft Azure platform.
+- **Budget Constraints**: Open-source or free tools will be used exclusively to avoid fees.
 
-##### 3.2.1.1 Interface Description
+---
 
-Input, output, exceptions, etc.
+### 6.0 Appendices
 
-##### 3.2.1.2 Static Models
+#### 6.1 Requirements Traceability Matrix
+| Requirement                        | Design Element                  |
+|------------------------------------|---------------------------------|
+| Task Creation                      | Task Management Component       |
+| User Authentication                | User Management Component       |
+| Task Filtering                     | Task Filtering Component        |
+| Audit Logging                      | Audit Component                 |
 
-Class diagrams, composite structure diagram, etc.
-
-##### 3.2.1.3 Dynamic Models
-
-Activity diagrams, sequential diagrams, state diagrams, etc.
-
-### 3.3 External Interface Description
-
-The software's interface(s) to the outside world (other software or hardware systems) are described.
-
-## 4.0 User Interface Design
-
-A description of the user interface design of the software is presented.
-
-### 4.1 Description of the User Interface
-
-A description of user interface including screen images or prototype is presented.
-
-### 4.2 Interface Design Rules
-
-Conventions and standards used for designing/implementing the user interface are stated.
-
-## 5.0 Restrictions, Limitations, and Constraints
-
-Special design issues which impact the design or implementation of the software are noted here.
-
-## 6.0 Appendices
-
-Presents information that supplements the design specification.
-
-### 6.1 Requirements Traceability Matrix
-
-A matrix that traces stated components and data structures to software requirements is developed.
-
-### 6.2 Implementation Issues
+#### 6.2 Implementation Issues
+- **Database Optimization**: Indexing and query optimization will be required to meet the performance targets.
+- **Scalability Considerations**: Future upgrades may involve adding more server capacity or migrating to a differnt cloud platform.
