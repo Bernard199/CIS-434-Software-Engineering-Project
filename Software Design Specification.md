@@ -56,7 +56,10 @@ The system will adopt a three-layer architecture:
 - **Presentation Layer**: Web-based front end for user interaction.
 - **Logic Layer**: Contains core functionality, such as task management, filtering, and authentication.
 - **Data Access Layer**: Interfaces with the database, handling data storage and retrieval.
-
+        <div style="text-align: center;">
+    ![ERD Diagram](UML/Layers.png)
+</div>
+        
 #### 3.2 Description for Components
 - **User Management Component**: Handles user authentication and role management. It interacts with the `Users` and `Roles` tables.
 - **Task Management Component**: Manages task creation, updating, and deletion. Interfaces with the `Tasks` table and the `Task History` for tracking changes.
