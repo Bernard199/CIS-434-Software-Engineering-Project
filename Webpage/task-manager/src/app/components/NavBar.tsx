@@ -36,9 +36,6 @@ export default function NavBar() {
           <li className='max-lg:border-b border-gray-300 max-lg:py-3 px-3'><a href='javascript:void(0)'
               className='hover:text-[#007bff] text-gray-500 block font-semibold text-[15px] cursor-pointer'>Projects</a> {/* Add Projects page link */}
           </li>
-          <li className='max-lg:border-b border-gray-300 max-lg:py-3 px-3'><a href='javascript:void(0)'
-              className='hover:text-[#007bff] text-gray-500 block font-semibold text-[15px] cursor-pointer'>About</a> {/* Add About page link */}
-          </li>
         </ul>
       </div>
   
