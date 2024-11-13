@@ -1,29 +1,62 @@
-// pages/TaskEntry.tsx
+// components/TaskEntry.tsx
 'use client'
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 
-interface Task {
+export interface Task {
+  id: number;
   title: string;
   description: string;
+  role: string;
+  deadline: string;
+  status: string;
   completed: boolean;
+  category: string;
+  priority: string;
 }
 
-export default function CreateTask() {
+interface TaskEntryProps {
+  addTask: (task: Task) => void;
+  editTask?: Task | null;
+  updateTask: (task: Task) => void;
+  resetEditTask: () => void;
+}
+
+const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, resetEditTask }) => {
   const [formFields, setFormFields] = useState<{ [key: string]: string }>({
     title: '',
     description: '',
+    role: '',
+    deadline: '',
+    status: '',
+    category: '',
+    priority: '',
   });
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [message, setMessage] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (editTask) {
+      setFormFields({
+        title: editTask.title,
+        description: editTask.description,
+        role: editTask.role,
+        deadline: editTask.deadline,
+        status: editTask.status,
+        category: editTask.category,
+        priority: editTask.priority,
+      });
+      setIsModalOpen(true);
+    }
+  }, [editTask]);
 
   const fieldConfig = [
     { name: 'title', placeholder: 'Task Title', type: 'text' },
     { name: 'description', placeholder: 'Task Description', type: 'text' },
     { name: 'role', placeholder: 'Role', type: 'text' },
     { name: 'deadline', placeholder: 'Deadline', type: 'text' },
-    { name: 'status', placeholder: 'Status', type: 'text' }
+    { name: 'status', placeholder: 'Status', type: 'text' },
+    { name: 'category', placeholder: 'Category', type: 'text' },
+    { name: 'priority', placeholder: 'Priority', type: 'text' },
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,63 +71,74 @@ export default function CreateTask() {
     e.preventDefault();
 
     const newTask: Task = {
+      id: Date.now(),
       title: formFields.title,
       description: formFields.description,
+      role: formFields.role,
+      deadline: formFields.deadline,
+      status: formFields.status,
       completed: false,
+      category: formFields.category,
+      priority: formFields.priority,
     };
 
-    setTasks([...tasks, newTask]);
-    setFormFields({ title: '', description: '' });
-    setMessage('Task added locally!');
-    setIsModalOpen(false); // Close modal after adding task
-  };
+    if (editTask) {
+      updateTask({ ...newTask, id: editTask.id });
+    } else {
+      addTask(newTask);
+    }
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
+    setFormFields({ title: '', description: '', role: '', deadline: '', status: '', category: '', priority: '' });
     setIsModalOpen(false);
+    resetEditTask();
+  };
+
+  const handleOpenAddTaskModal = () => {
+    setFormFields({ title: '', description: '', role: '', deadline: '', status: '', category: '', priority: '' });
+    setIsModalOpen(true);
+    resetEditTask();
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    resetEditTask();
   };
 
   return (
     <div>
-      {/* Add Task Button */}
-      <button onClick={openModal} className='p-1 bg-blue-500 text-white rounded-md text-sm shadow-lg'>
+      <button onClick={handleOpenAddTaskModal} className="p-1 bg-blue-500 text-white rounded-md text-sm shadow-lg">
         Add Task
       </button>
 
-      {/* Modal Overlay */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center transition-opacity duration-300">
-          {/* Modal Content */}
           <div className="relative bg-white p-10 w-80 rounded-md shadow-lg transition-transform transform scale-100 opacity-100">
-            {/* Close Button */}
-            <button onClick={closeModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
+            <button onClick={handleCloseModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
               ✕
             </button>
 
             <form onSubmit={handleAddTask}>
               {fieldConfig.map((field) => (
-                <div key={field.name} className='mb-4'>
+                <div key={field.name} className="mb-4">
                   <input
                     type={field.type}
                     name={field.name}
                     placeholder={field.placeholder}
                     value={formFields[field.name]}
                     onChange={handleInputChange}
-                    className='w-full p-2 border rounded-md'
+                    className="w-full p-2 border rounded-md"
                   />
                 </div>
               ))}
-              <button type="submit" className='w-full p-2 bg-blue-500 text-white rounded-md'>
-                Add Task
+              <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded-md">
+                {editTask ? 'Update Task' : 'Add Task'}
               </button>
-              {message && <p className='mt-4 text-green-500'>{message}</p>}
             </form>
           </div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default TaskEntry;
