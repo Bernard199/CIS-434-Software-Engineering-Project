@@ -1,3 +1,5 @@
+import TaskEntry from "../components/TaskEntry";
+
 interface Task {
     id: number;
     title: string;
@@ -17,14 +19,15 @@ interface Task {
   
   export default function TaskTable({ tasks }: TaskListProps) {
     return (
-      <div className="font-sans overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="font-sans overflow-x-auto shadow-lg rounded-md">
+        {/* Task Table */}
+        <table className="min-w-full divide-y divide-gray-200 ">
           <thead className="bg-gray-100">
             <tr>
               {headers.map((header) => (
                 <th
                   key={header}
-                  className="px-4 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                  className="px-4 py-4 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider whitespace-nowrap"
                 >
                   {header}
                 </th>
@@ -34,7 +37,7 @@ interface Task {
           <tbody className="bg-white divide-y divide-gray-200">
             {tasks.length === 0 ? (
               <tr>
-                <td colSpan={headers.length} className="px-4 py-4 text-center text-sm text-gray-500">
+                <td colSpan={headers.length} className="px-4 py-4 text-center text-sm text-gray-800">
                   No tasks available
                 </td>
               </tr>
@@ -55,6 +58,10 @@ interface Task {
             )}
           </tbody>
         </table>
+        {/* Task Entry */}
+        <div className="bg-neutral-100 p-1">
+          <div className="flex items-center justify-center"> <TaskEntry/> </div>
+        </div>
       </div>
     );
   }

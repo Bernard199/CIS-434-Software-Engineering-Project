@@ -1,4 +1,5 @@
 // pages/TaskEntry.tsx
+'use client'
 
 import { useState, FormEvent } from 'react';
 
@@ -9,69 +10,91 @@ interface Task {
 }
 
 export default function CreateTask() {
-  const [title, setTitle] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const [formFields, setFormFields] = useState<{ [key: string]: string }>({
+    title: '',
+    description: '',
+  });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [message, setMessage] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  // Function to add the task to the local list
+  const fieldConfig = [
+    { name: 'title', placeholder: 'Task Title', type: 'text' },
+    { name: 'description', placeholder: 'Task Description', type: 'text' },
+    { name: 'role', placeholder: 'Role', type: 'text' },
+    { name: 'deadline', placeholder: 'Deadline', type: 'text' },
+    { name: 'status', placeholder: 'Status', type: 'text' }
+  ];
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormFields((prevFields) => ({
+      ...prevFields,
+      [name]: value,
+    }));
+  };
+
   const handleAddTask = (e: FormEvent) => {
     e.preventDefault();
 
-    // Create a new task object
     const newTask: Task = {
-      title,
-      description,
+      title: formFields.title,
+      description: formFields.description,
       completed: false,
     };
 
-    // Add the new task to the local list and reset the form fields
     setTasks([...tasks, newTask]);
-    setTitle('');
-    setDescription('');
+    setFormFields({ title: '', description: '' });
     setMessage('Task added locally!');
+    setIsModalOpen(false); // Close modal after adding task
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
-    <div className="px-8 pt-6">
-      <h1 className="text-2xl font-bold mb-4">Create Tasks Locally</h1>
-      <form onSubmit={handleAddTask}>
-        <div className="mb-4">
-          <label className="block text-gray-700">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="border border-gray-300 px-3 py-2 rounded-lg w-full"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="border border-gray-300 px-3 py-2 rounded-lg w-full"
-          ></textarea>
-        </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Add Task Locally
-        </button>
-      </form>
+    <div>
+      {/* Add Task Button */}
+      <button onClick={openModal} className='p-1 bg-blue-500 text-white rounded-md text-sm shadow-lg'>
+        Add Task
+      </button>
 
-      <h2 className="text-xl font-bold mt-6">Local Task List</h2>
-      <ul className="list-disc pl-5 mt-2">
-        {tasks.map((task, index) => (
-          <li key={index} className="py-1">
-            <strong>{task.title}</strong>: {task.description}
-          </li>
-        ))}
-      </ul>
+      {/* Modal Overlay */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center transition-opacity duration-300">
+          {/* Modal Content */}
+          <div className="relative bg-white p-10 w-80 rounded-md shadow-lg transition-transform transform scale-100 opacity-100">
+            {/* Close Button */}
+            <button onClick={closeModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
+              ✕
+            </button>
 
-      {message && <p className="mt-4 text-green-600">{message}</p>}
+            <form onSubmit={handleAddTask}>
+              {fieldConfig.map((field) => (
+                <div key={field.name} className='mb-4'>
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    placeholder={field.placeholder}
+                    value={formFields[field.name]}
+                    onChange={handleInputChange}
+                    className='w-full p-2 border rounded-md'
+                  />
+                </div>
+              ))}
+              <button type="submit" className='w-full p-2 bg-blue-500 text-white rounded-md'>
+                Add Task
+              </button>
+              {message && <p className='mt-4 text-green-500'>{message}</p>}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
