@@ -3,3 +3,6 @@
 
 # Ignore other sensitive config files
 config.py
+
+# Ignore virtual environment folder
+env/

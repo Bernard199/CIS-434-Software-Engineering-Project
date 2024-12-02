@@ -8,7 +8,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# User CRUD operations
+# User CRUD operations--------------------------------------------------------------------
 
 @app.post("/users/")
 def create_user(name: str, email: str, db: Session = Depends(get_db)):
@@ -54,7 +54,7 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "User deleted successfully"}
 
-# Task CRUD operations
+# Task CRUD operations --------------------------------------------------------------------
 
 @app.post("/tasks/")
 def create_task(title: str, description: str, user_id: int, db: Session = Depends(get_db)):
