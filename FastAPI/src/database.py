@@ -3,12 +3,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 import os
-from dotenv import load_dotenv
 
-load_dotenv(dotenv_path="env/FastAPI.env")
+
 
 # Database URL
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql+psycopg2://FastAPI:aD9KFV#$G5,3zt_~vBJeCX@10.0.0.51:5432/Task"
 
 # Create an engine
 engine = create_engine(DATABASE_URL, poolclass=NullPool)
