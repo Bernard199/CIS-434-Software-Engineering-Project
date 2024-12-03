@@ -33,36 +33,35 @@ export default function NavBar() {
     }
   }, []);
 
-// Handle Login Function
-const handleLogin = async (username: string, password: string) => {
-  try {
-    const response = await axios.post('http://10.0.0.52:8000/login/', { username, password });
-    localStorage.setItem('token', response.data.token);
-    setUserLoggedIn(true);
-    setLoginModalOpen(false);
-    setToast({ type: 'success', message: 'Login successful' });
-  } catch (error: any) {
-    // Extract error details properly
-    const errorMessage = Array.isArray(error.response?.data?.detail)
-      ? error.response?.data?.detail.map((detail: any) => detail.msg).join(', ')
-      : error.response?.data?.detail || 'Login failed';
-    setLoginError(errorMessage);
-  }
-};
+  // Handle Login Function
+  const handleLogin = async (username: string, password: string) => {
+    try {
+      const response = await axios.post('http://10.0.0.52:8000/login/', { username, password });
+      localStorage.setItem('token', response.data.token);
+      setUserLoggedIn(true);
+      setLoginModalOpen(false);
+      setToast({ type: 'success', message: 'Login successful' });
+    } catch (error: any) {
+      const errorMessage = Array.isArray(error.response?.data?.detail)
+        ? error.response?.data?.detail.map((detail: any) => detail.msg).join(', ')
+        : error.response?.data?.detail || 'Login failed';
+      setLoginError(errorMessage);
+    }
+  };
 
-// Handle Sign Up Function
-const handleSignUp = async (username: string, password: string) => {
-  try {
-    await axios.post('http://10.0.0.52:8000/users/', { username, password });
-    setSignUpModalOpen(false);
-    setToast({ type: 'success', message: 'Sign up successful' });
-  } catch (error: any) {
-    const errorMessage = Array.isArray(error.response?.data?.detail)
-      ? error.response?.data?.detail.map((detail: any) => detail.msg).join(', ')
-      : error.response?.data?.detail || 'Sign up failed';
-    setSignUpError(errorMessage);
-  }
-};
+  // Handle Sign Up Function
+  const handleSignUp = async (username: string, password: string) => {
+    try {
+      await axios.post('http://10.0.0.52:8000/users/', { username, password });
+      setSignUpModalOpen(false);
+      setToast({ type: 'success', message: 'Sign up successful' });
+    } catch (error: any) {
+      const errorMessage = Array.isArray(error.response?.data?.detail)
+        ? error.response?.data?.detail.map((detail: any) => detail.msg).join(', ')
+        : error.response?.data?.detail || 'Sign up failed';
+      setSignUpError(errorMessage);
+    }
+  };
 
   // Handle Logout Function
   const handleLogout = () => {
@@ -143,10 +142,10 @@ const handleSignUp = async (username: string, password: string) => {
             <div className='bg-white p-6 rounded-lg shadow-lg w-[400px] relative'>
               <button onClick={toggleLoginModal} className='top-2 right-2 text-gray-500 absolute'>X</button>
               <h2 className='text-xl font-bold mb-4'>Login</h2>
-              <input type='email' placeholder='User' id='login-User' className='w-full mb-3 p-2 border border-gray-300 rounded' />
+              <input type='text' placeholder='Username' id='login-username' className='w-full mb-3 p-2 border border-gray-300 rounded' />
               <input type='password' placeholder='Password' id='login-password' className='w-full mb-4 p-2 border border-gray-300 rounded' />
               {loginError && <p className='text-red-500 text-sm mb-3'>{loginError}</p>}
-              <button onClick={() => handleLogin((document.getElementById('login-email') as HTMLInputElement)?.value || '', (document.getElementById('login-password') as HTMLInputElement)?.value || '')} className='w-full px-4 py-2 bg-[#007bff] text-white rounded hover:bg-transparent hover:text-[#007bff] border-2 border-[#007bff] transition-all duration-300'>Login</button>
+              <button onClick={() => handleLogin((document.getElementById('login-username') as HTMLInputElement)?.value || '', (document.getElementById('login-password') as HTMLInputElement)?.value || '')} className='w-full px-4 py-2 bg-[#007bff] text-white rounded hover:bg-transparent hover:text-[#007bff] border-2 border-[#007bff] transition-all duration-300'>Login</button>
             </div>
           </div>
         )}
@@ -157,10 +156,10 @@ const handleSignUp = async (username: string, password: string) => {
             <div className='bg-white p-6 rounded-lg shadow-lg w-[400px] relative'>
               <button onClick={toggleSignUpModal} className='top-2 right-2 text-gray-500 absolute'>X</button>
               <h2 className='text-xl font-bold mb-4'>Sign Up</h2>
-              <input type='email' placeholder='User' id='signup-User' className='w-full mb-3 p-2 border border-gray-300 rounded' />
+              <input type='text' placeholder='Username' id='signup-username' className='w-full mb-3 p-2 border border-gray-300 rounded' />
               <input type='password' placeholder='Password' id='signup-password' className='w-full mb-4 p-2 border border-gray-300 rounded' />
               {signUpError && <p className='text-red-500 text-sm mb-3'>{signUpError}</p>}
-              <button onClick={() => handleSignUp((document.getElementById('signup-email') as HTMLInputElement)?.value || '', (document.getElementById('signup-password') as HTMLInputElement)?.value || '')} className='w-full px-4 py-2 bg-[#007bff] text-white rounded hover:bg-transparent hover:text-[#007bff] border-2 border-[#007bff] transition-all duration-300'>Sign Up</button>
+              <button onClick={() => handleSignUp((document.getElementById('signup-username') as HTMLInputElement)?.value || '', (document.getElementById('signup-password') as HTMLInputElement)?.value || '')} className='w-full px-4 py-2 bg-[#007bff] text-white rounded hover:bg-transparent hover:text-[#007bff] border-2 border-[#007bff] transition-all duration-300'>Sign Up</button>
             </div>
           </div>
         )}
