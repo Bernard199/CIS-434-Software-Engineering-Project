@@ -4,6 +4,8 @@
 //Datatype for the props
 interface ToastProps {
   type: string;
+  message?: string;
+  onClose?: () => void;
 }
 
 // Define a Map for mapping responses to numbers
@@ -14,12 +16,12 @@ const outputmap = new Map<string, number>([
   ]);
 
 // Helper function to render the appropriate toast
-const renderToastContent = (type: number | undefined) => {
+const renderToastContent = (type: number | undefined, message?: string, onClose?: () => void) => {
     switch (type) {
       case 1: // Success
         return (
           <div
-            className="bg-white shadow-[0_3px_10px_-3px_rgba(6,81,237,0.3)] border-l-[6px] border-green-500 text-gray-800 flex items-center w-max max-w-sm p-4 rounded-md"
+            className="bg-white shadow-[0_3px_10px_-3px_rgba(6,81,237,0.3)] border-l-[6px] border-green-500 text-gray-800 flex items-center w-max max-w-sm p-4 rounded-md relative"
             role="alert"
           >
             <svg
@@ -34,16 +36,17 @@ const renderToastContent = (type: number | undefined) => {
                 data-original="#000"
               />
             </svg>
-            <span className="text-sm font-semibold tracking-wide">
-              Update successfully
+            <span className="text-sm font-semibold tracking-wide mr-6">
+              {message || "Update successfully"}
             </span>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 absolute top-2 right-2">X</button>
           </div>
         );
 
       case 2: // Error
         return (
           <div
-            className="bg-white shadow-[0_3px_10px_-3px_rgba(6,81,237,0.3)] border-l-[6px] border-yellow-500 text-gray-800 flex items-center w-max max-w-sm p-4 rounded-md"
+            className="bg-white shadow-[0_3px_10px_-3px_rgba(6,81,237,0.3)] border-l-[6px] border-yellow-500 text-gray-800 flex items-center w-max max-w-sm p-4 rounded-md relative"
             role="alert"
           >
             <svg
@@ -60,16 +63,17 @@ const renderToastContent = (type: number | undefined) => {
                 <circle cx="64" cy="100.222" r="6" data-original="#fff" />
               </g>
             </svg>
-            <span className="text-sm font-semibold tracking-wide">
-              Account inactive
+            <span className="text-sm font-semibold tracking-wide mr-6">
+              {message || "Account inactive"}
             </span>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 absolute top-2 right-2">X</button>
           </div>
         );
 
       case 3: // Warning
         return (
           <div
-            className="bg-white shadow-[0_3px_10px_-3px_rgba(6,81,237,0.3)] border-l-[6px] border-red-500 text-gray-800 flex items-center w-max max-w-sm p-4 rounded-md"
+            className="bg-white shadow-[0_3px_10px_-3px_rgba(6,81,237,0.3)] border-l-[6px] border-red-500 text-gray-800 flex items-center w-max max-w-sm p-4 rounded-md relative"
             role="alert"
           >
             <svg
@@ -82,9 +86,10 @@ const renderToastContent = (type: number | undefined) => {
                 data-original="#ea2d3f"
               />
             </svg>
-            <span className="text-sm font-semibold tracking-wide">
-              Something went wrong
+            <span className="text-sm font-semibold tracking-wide mr-6">
+              {message || "Something went wrong"}
             </span>
+            <button onClick={onClose} className="text-gray-500 hover:text-gray-700 absolute top-2 right-2">X</button>
           </div>
         );
       default:
@@ -92,13 +97,11 @@ const renderToastContent = (type: number | undefined) => {
     }
   };
 
-export default function Toast({ type }: ToastProps) {
+export default function Toast({ type, message, onClose }: ToastProps) {
+  if (!type) return null;
   return(
-
-    <div className="font-[sans-serif] space-y-6 mx-auto w-max mt-4">
-        renderToastContent(outputmap.get(type))     
+    <div className="fixed bottom-4 right-4 z-50">
+      {renderToastContent(outputmap.get(type), message, onClose)}
     </div>
-
   );
 }
-

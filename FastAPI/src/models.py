@@ -10,7 +10,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
-    password = Column(String, nullable=False)  # Adding a password field for user authentication
+    password = Column(String, nullable=False)  
     
     # One user can have many tasks
     tasks = relationship("Task", back_populates="owner")
@@ -22,9 +22,9 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True, nullable=False)
     description = Column(String, nullable=True)
-    priority = Column(Integer, default=1)  # Adding priority, with default value
-    due_date = Column(DateTime, nullable=True)  # Adding due date for tasks
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # ForeignKey to User
+    priority = Column(Integer, default=1)  
+    due_date = Column(DateTime, nullable=True)  
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  
 
     # Many tasks belong to one user
     owner = relationship("User", back_populates="tasks")
