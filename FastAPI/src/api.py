@@ -1,6 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from typing import List
 from .database import engine, Base, get_db
 from .models import User, Task
 
@@ -18,18 +20,49 @@ app.add_middleware(
     allow_headers=["*"],  # You can specify the headers you want to allow.
 )
 
+# Pydantic schema for user creation and login
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+# Pydantic schema for task creation and update
+class TaskCreate(BaseModel):
+    title: str
+    description: str
+    user_id: int
+    priority: int = 1
+    deadline: str = None
+    status: str = None
+
+class TaskUpdate(BaseModel):
+    title: str
+    description: str
+
 # User CRUD operations --------------------------------------------------------------------
 
-@app.post("/users/")
-def create_user(username: str, password: str, db: Session = Depends(get_db)):
-    # Create a new user in the database
-    db_user = User(username=username, password=password)
+@app.post("/users/", response_model=UserCreate)
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    # Create a new user in the database without hashing the password
+    db_user = User(username=user.username, password=user.password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
 
-@app.get("/users/{user_id}")
+@app.post("/login/")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    # Check if the user exists
+    db_user = db.query(User).filter(User.username == user.username).first()
+    if db_user is None or db_user.password != user.password:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    # Mock token for simplicity
+    return {"token": f"mock-token-for-{user.username}"}
+
+@app.get("/users/{user_id}", response_model=UserCreate)
 def get_user(user_id: int, db: Session = Depends(get_db)):
     # Get a user by ID
     db_user = db.query(User).filter(User.user_id == user_id).first()
@@ -37,19 +70,19 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
-@app.get("/users/")
+@app.get("/users/", response_model=List[UserCreate])
 def get_users(db: Session = Depends(get_db)):
     # Get all users
     return db.query(User).all()
 
-@app.put("/users/{user_id}")
-def update_user(user_id: int, username: str, password: str, db: Session = Depends(get_db)):
+@app.put("/users/{user_id}", response_model=UserCreate)
+def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
     # Update an existing user's details
     db_user = db.query(User).filter(User.user_id == user_id).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    db_user.username = username
-    db_user.password = password
+    db_user.username = user.username
+    db_user.password = user.password
     db.commit()
     db.refresh(db_user)
     return db_user
@@ -66,16 +99,23 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 # Task CRUD operations --------------------------------------------------------------------
 
-@app.post("/tasks/")
-def create_task(title: str, description: str, user_id: int, db: Session = Depends(get_db)):
+@app.post("/tasks/", response_model=TaskCreate)
+def create_task(task: TaskCreate, db: Session = Depends(get_db)):
     # Create a new task and associate it with a user
-    db_task = Task(title=title, description=description, user_id=user_id)
+    db_task = Task(
+        title=task.title,
+        description=task.description,
+        user_id=task.user_id,
+        priority=task.priority,
+        deadline=task.deadline,
+        status=task.status
+    )
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
     return db_task
 
-@app.get("/tasks/{task_id}")
+@app.get("/tasks/{task_id}", response_model=TaskCreate)
 def get_task(task_id: int, db: Session = Depends(get_db)):
     # Get a task by ID
     db_task = db.query(Task).filter(Task.task_id == task_id).first()
@@ -83,19 +123,19 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Task not found")
     return db_task
 
-@app.get("/tasks/")
+@app.get("/tasks/", response_model=List[TaskCreate])
 def get_tasks(db: Session = Depends(get_db)):
     # Get all tasks
     return db.query(Task).all()
 
-@app.put("/tasks/{task_id}")
-def update_task(task_id: int, title: str, description: str, db: Session = Depends(get_db)):
+@app.put("/tasks/{task_id}", response_model=TaskCreate)
+def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
     # Update an existing task
     db_task = db.query(Task).filter(Task.task_id == task_id).first()
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    db_task.title = title
-    db_task.description = description
+    db_task.title = task.title
+    db_task.description = task.description
     db.commit()
     db.refresh(db_task)
     return db_task
