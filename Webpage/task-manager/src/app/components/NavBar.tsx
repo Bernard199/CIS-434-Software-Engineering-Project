@@ -10,6 +10,7 @@ export default function NavBar() {
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [isSignUpModalOpen, setSignUpModalOpen] = useState(false);
   const [isUserLoggedIn, setUserLoggedIn] = useState(false);
+  const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
   const [toast, setToast] = useState<{ type: string, message: string } | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [signUpError, setSignUpError] = useState<string | null>(null);
@@ -24,6 +25,26 @@ export default function NavBar() {
     setSignUpModalOpen(!isSignUpModalOpen);
     setSignUpError(null);
   };
+  const toggleUserDropdown = () => setUserDropdownOpen(!isUserDropdownOpen);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.user-icon') && !target.closest('.user-dropdown')) {
+        setUserDropdownOpen(false);
+      }
+    };
+    if (isUserDropdownOpen) {
+      document.addEventListener('click', handleClickOutside);
+    } else {
+      document.removeEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isUserDropdownOpen]);
 
   // Check login status on component mount
   useEffect(() => {
@@ -68,6 +89,13 @@ export default function NavBar() {
     localStorage.removeItem('token');
     setUserLoggedIn(false);
     setToast({ type: 'success', message: 'Logout successful' });
+
+    // Add a slight delay before redirecting to ensure the UI updates properly
+    setTimeout(() => {
+      if (window.location.pathname === '/Tasks') {
+        router.push('/');
+      }
+    }, 300);
   };
 
   return (
@@ -96,7 +124,8 @@ export default function NavBar() {
                 {[
                   { name: 'Home', path: '/HomePage' },
                   { name: 'Tasks', path: '/Tasks' },
-                  { name: 'Projects', path: '/' }
+                  // Commenting out the Projects tab for now
+                  // { name: 'Projects', path: '/' }
                 ].map((item, index) => (
                   <li key={index} className='max-lg:border-b border-gray-300 max-lg:py-3 px-3'>
                     <a onClick={() => { setMenuOpen(false); router.push(item.path); }} className='hover:text-[#007bff] text-gray-500 block font-semibold text-[15px] cursor-pointer'>{item.name}</a>
@@ -115,15 +144,17 @@ export default function NavBar() {
               </>
             ) : (
               <div className='relative'>
-                <button className='p-2 rounded-full bg-gray-200 shadow-lg'>
+                <button className='p-2 rounded-full bg-gray-200 shadow-lg user-icon' onClick={toggleUserDropdown}>
                   {/* User Icon */}
                   <svg className='w-6 h-6' fill='currentColor' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'>
                     <path fillRule='evenodd' d='M10 2a6 6 0 100 12 6 6 0 000-12zM2 18a8 8 0 0116 0H2z' clipRule='evenodd'></path>
                   </svg>
                 </button>
-                <div className='absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg'>
-                  <a onClick={handleLogout} className='block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer'>Logout</a>
-                </div>
+                {isUserDropdownOpen && (
+                  <div className='absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg user-dropdown'>
+                    <a onClick={handleLogout} className='block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer'>Logout</a>
+                  </div>
+                )}
               </div>
             )}
 

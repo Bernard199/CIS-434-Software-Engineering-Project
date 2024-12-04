@@ -33,6 +33,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     priority: '',
   });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (editTask) {
@@ -53,7 +54,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     { name: 'title', placeholder: 'Task Title', type: 'text' },
     { name: 'description', placeholder: 'Task Description', type: 'text' },
     { name: 'role', placeholder: 'Role', type: 'text' },
-    { name: 'deadline', placeholder: 'Deadline', type: 'text' },
+    { name: 'deadline', placeholder: 'Deadline', type: 'date' },
     { name: 'status', placeholder: 'Status', type: 'text' },
     { name: 'category', placeholder: 'Category', type: 'text' },
     { name: 'priority', placeholder: 'Priority', type: 'text' },
@@ -69,6 +70,15 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
 
   const handleAddTask = (e: FormEvent) => {
     e.preventDefault();
+
+    const newErrors = [];
+    if (!formFields.title) newErrors.push('Title is required');
+    if (!formFields.priority) newErrors.push('Priority is required');
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     const newTask: Task = {
       id: Date.now(),
@@ -89,6 +99,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     }
 
     setFormFields({ title: '', description: '', role: '', deadline: '', status: '', category: '', priority: '' });
+    setErrors([]);
     setIsModalOpen(false);
     resetEditTask();
   };
@@ -117,7 +128,19 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
               ✕
             </button>
 
-            <form onSubmit={handleAddTask}>
+            <form onSubmit={handleAddTask} aria-labelledby="task-form-title">
+              <h2 id="task-form-title" className="text-lg font-bold mb-4">
+                {editTask ? 'Edit Task' : 'Add Task'}
+              </h2>
+
+              {errors.length > 0 && (
+                <div className="mb-4 text-red-500">
+                  {errors.map((error, idx) => (
+                    <p key={idx}>{error}</p>
+                  ))}
+                </div>
+              )}
+
               {fieldConfig.map((field) => (
                 <div key={field.name} className="mb-4">
                   <input

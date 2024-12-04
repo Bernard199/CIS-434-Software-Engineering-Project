@@ -1,20 +1,44 @@
 // components/BetterList.tsx
 import React from 'react';
+import axios from 'axios';
 import { Task } from './TaskEntry';
 
 interface BetterListProps {
   tasks: Task[];
   deleteTask: (id: number) => void;
   editTask: (task: Task) => void;
+  userId: number; // User ID for whom tasks will be saved
 }
 
-const headers = ["TaskName", "Description", "Role", "Priority", "Deadline", "Status", "Actions"];
-const taskKeys = ["title", "description", "role", "priority", "deadline", "status"];
+const headers = ["TaskName", "Description", "Priority", "Deadline", "Status", "Actions"];
+const taskKeys = ["title", "description", "priority", "deadline", "status"];
 
-const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask }) => {
+const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, userId }) => {
+  // Function to save tasks to the backend
+  const handleSaveTasks = async () => {
+    try {
+      // Loop through each task and send a POST request to save them
+      for (const task of tasks) {
+        const response = await axios.post(`http://10.0.0.52:8000/tasks/`, {
+          title: task.title,
+          description: task.description,
+          priority: task.priority,
+          deadline: task.deadline ? new Date(task.deadline).toISOString() : null,
+          status: task.status,
+          user_id: userId, // Associate the task with the correct user ID
+        });
+        console.log("Task saved successfully:", response.data);
+      }
+      alert('Tasks saved successfully!');
+    } catch (error: any) {
+      console.error('Failed to save tasks:', error.response ? error.response.data : error.message);
+      alert('Failed to save tasks. Please check the console for more details.');
+    }
+  };
+
   return (
     <div className="font-sans overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
+      <table className="min-w-full divide-y divide-gray-200 mb-4">
         <thead className="bg-gray-100">
           <tr>
             {headers.map((header) => (
@@ -39,7 +63,7 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask }) 
               <tr key={task.id} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
                 {taskKeys.map((key) => (
                   <td key={key} className="px-4 py-4 text-sm text-gray-800">
-                    {task[key as keyof Task]}
+                    {task[key as keyof Task] || '-'}
                   </td>
                 ))}
                 <td className="px-4 py-4 text-sm text-gray-800">
@@ -51,6 +75,15 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask }) 
           )}
         </tbody>
       </table>
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleSaveTasks}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 transition-all duration-300"
+        >
+          Save Tasks
+        </button>
+      </div>
     </div>
   );
 };
