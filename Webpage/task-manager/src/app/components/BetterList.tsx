@@ -1,6 +1,6 @@
 // components/BetterList.tsx
 import React from 'react';
-import axios from 'axios';
+import { createTask } from '../API/taskService';
 import { Task } from './TaskEntry';
 
 interface BetterListProps {
@@ -17,21 +17,21 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, us
   // Function to save tasks to the backend
   const handleSaveTasks = async () => {
     try {
-      // Loop through each task and send a POST request to save them
       for (const task of tasks) {
-        const response = await axios.post(`http://10.0.0.52:8000/tasks/`, {
+        const taskData = {
           title: task.title,
           description: task.description,
           priority: task.priority,
           deadline: task.deadline ? new Date(task.deadline).toISOString() : null,
           status: task.status,
-          user_id: userId, // Associate the task with the correct user ID
-        });
-        console.log("Task saved successfully:", response.data);
+          user_id: userId,
+        };
+        const response = await createTask(taskData);
+        console.log("Task saved successfully:", response);
       }
       alert('Tasks saved successfully!');
     } catch (error: any) {
-      console.error('Failed to save tasks:', error.response ? error.response.data : error.message);
+      console.error('Failed to save tasks:', error);
       alert('Failed to save tasks. Please check the console for more details.');
     }
   };

@@ -1,7 +1,9 @@
+// Updating the NavBar component to represent the changes in user handling using service functions.
+
 'use client';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { loginUser, createUser } from '../API/userService';
 import Toast from './Toast';
 
 export default function NavBar() {
@@ -57,30 +59,24 @@ export default function NavBar() {
   // Handle Login Function
   const handleLogin = async (username: string, password: string) => {
     try {
-      const response = await axios.post('http://10.0.0.52:8000/login/', { username, password });
-      localStorage.setItem('token', response.data.token);
+      const response = await loginUser({ username, password });
+      localStorage.setItem('token', response.token);
       setUserLoggedIn(true);
       setLoginModalOpen(false);
       setToast({ type: 'success', message: 'Login successful' });
     } catch (error: any) {
-      const errorMessage = Array.isArray(error.response?.data?.detail)
-        ? error.response?.data?.detail.map((detail: any) => detail.msg).join(', ')
-        : error.response?.data?.detail || 'Login failed';
-      setLoginError(errorMessage);
+      setLoginError(error.message);
     }
   };
 
   // Handle Sign Up Function
   const handleSignUp = async (username: string, password: string) => {
     try {
-      await axios.post('http://10.0.0.52:8000/users/', { username, password });
+      await createUser({ username, password });
       setSignUpModalOpen(false);
       setToast({ type: 'success', message: 'Sign up successful' });
     } catch (error: any) {
-      const errorMessage = Array.isArray(error.response?.data?.detail)
-        ? error.response?.data?.detail.map((detail: any) => detail.msg).join(', ')
-        : error.response?.data?.detail || 'Sign up failed';
-      setSignUpError(errorMessage);
+      setSignUpError(error.message);
     }
   };
 
