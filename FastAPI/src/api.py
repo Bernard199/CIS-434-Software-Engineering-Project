@@ -49,7 +49,7 @@ class TaskCreate(BaseModel):
     description: Optional[str] = None
     category: Optional[str] = None
     priority: int
-    deadline: Optional[str] = None
+    deadline: Optional[datetime] = None  # Use datetime for proper validation
     status: Optional[str] = None
     user_id: int
 
@@ -58,7 +58,7 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     category: Optional[str] = None
     priority: Optional[int] = None
-    deadline: Optional[str] = None
+    deadline: Optional[datetime] = None  # Use datetime for proper validation
     status: Optional[str] = None
 
 class TaskResponse(BaseModel):
