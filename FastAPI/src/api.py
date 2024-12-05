@@ -160,7 +160,11 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
 @app.post("/users/", response_model=UserResponse)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     hashed_password = get_password_hash(user.password)
-    db_user = User(username=user.username, password=hashed_password)
+    
+    # Assign a default role_id if not provided
+    default_role_id = 1  # Set the appropriate default role ID here
+    
+    db_user = User(username=user.username, password=hashed_password, role_id=default_role_id)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
