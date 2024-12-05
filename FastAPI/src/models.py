@@ -17,8 +17,8 @@ class User(Base):
     __tablename__ = "users"
 
     user_id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(25), index=True, nullable=False)
-    password = Column(String(255), nullable=False)  # Updated length to store hashed password
+    username = Column(String(50), index=True, nullable=False)  # Increased length if needed
+    password = Column(String(255), nullable=False)  # Keep this long enough for hashed passwords
     role_id = Column(Integer, ForeignKey("roles.role_id"))
 
     # Relationship to role
@@ -26,6 +26,7 @@ class User(Base):
 
     # Relationship to tasks
     tasks = relationship("Task", back_populates="owner")
+
 
 # Task model
 class Task(Base):

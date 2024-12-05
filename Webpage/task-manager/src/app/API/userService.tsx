@@ -39,9 +39,17 @@ export const createUser = async (userData: User): Promise<User> => {
   }
 };
 
-export const loginUser = async (credentials: { username: string; password: string }): Promise<{ token: string }> => {
+export const loginUser = async (credentials: { username: string; password: string }): Promise<{ access_token: string; token_type: string }> => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/login/`, credentials);
+    const formData = new URLSearchParams();
+    formData.append('username', credentials.username);
+    formData.append('password', credentials.password);
+
+    const response = await axios.post(`${API_BASE_URL}/login/`, formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Failed to login:', error);
