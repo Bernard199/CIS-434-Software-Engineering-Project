@@ -1,4 +1,3 @@
-// components/BetterList.tsx
 import React from 'react';
 import { createTask } from '../API/taskService';
 import { Task } from './TaskEntry';
@@ -10,8 +9,8 @@ interface BetterListProps {
   userId: number;
 }
 
-const headers = ["TaskName", "Description", "Priority", "Deadline", "Status", "Actions"];
-const taskKeys = ["title", "description", "priority", "deadline", "status"];
+const headers = ["TaskName", "Description", "Category", "Priority", "Deadline", "Status", "Actions"];
+const taskKeys = ["title", "description", "category", "priority", "deadline", "status"];
 
 const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, userId }) => {
   const handleSaveTasks = async () => {
@@ -20,6 +19,7 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, us
         const taskData = {
           title: task.title,
           description: task.description,
+          category: task.category,
           priority: Number(task.priority),
           deadline: task.deadline ? new Date(task.deadline).toISOString() : undefined,
           status: task.status,
