@@ -18,7 +18,7 @@ class User(Base):
 
     user_id = Column(Integer, primary_key=True, index=True)
     username = Column(String(25), index=True, nullable=False)
-    password = Column(String(25), nullable=False)
+    password = Column(String(255), nullable=False)  # Updated length to store hashed password
     role_id = Column(Integer, ForeignKey("roles.role_id"))
 
     # Relationship to role
