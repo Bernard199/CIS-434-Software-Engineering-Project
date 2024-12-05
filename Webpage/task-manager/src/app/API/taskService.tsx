@@ -6,6 +6,7 @@ export interface Task {
   taskId?: number;
   title: string;
   description?: string;
+  category?: string;
   priority?: number;
   deadline?: string;
   status?: string;
@@ -40,6 +41,7 @@ export const createTask = async (taskData: Task): Promise<Task> => {
     const response = await axios.post(`${API_BASE_URL}/tasks/`, {
       title: taskData.title,
       description: taskData.description,
+      category: taskData.category, // Added category field
       user_id: taskData.user_id, // Ensure user_id is a valid number
       priority: priority ?? 1, // Default to 1 if not provided
       deadline: taskData.deadline ? new Date(taskData.deadline).toISOString() : null,
