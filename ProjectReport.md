@@ -141,15 +141,55 @@ Expand to include details from the requirements document:
 
 #### 3.2.1 Graphic Use Case Model
 
-![Graphic Use Case Model](UML/UseCaseModel.png)
+![Graphic Use Case Model](UML/UseCase.png)
 
 #### 3.2.2 Textual Description for Each Use Case
 
-- **Create Task**: The user can create a new task by providing a title, category, priority level, and deadline. If a user submits a task without a required field, an error message will prompt them to complete the missing information.
-- **Edit Task**: The user can modify an existing task’s details (title, category, priority, or deadline). The system must allow a user to update the task and show the updated details in real-time.
-- **Delete Task**: The user can delete an existing task. The program will ask for confirmation, and the system must successfully delete the task.
+- **Login**: Allows a user to securely access their account by entering their username and password. If the credentials are invalid, an error message will be displayed. 
+  - **Actors**: Regular User, Admin User
+  - **Preconditions**: User must be registered.
+  - **Postconditions**: User is authenticated and redirected to the dashboard.
 
-Include more specific use cases such as:
+- **Register**: Enables a new user to create an account by providing required details, such as username, password, and email address. 
+  - **Actors**: Regular User
+  - **Preconditions**: None.
+  - **Postconditions**: User is registered and redirected to the login page.
+
+- **Logout**: Allows a user to securely log out of the system. Any active session will be terminated.
+  - **Actors**: Regular User, Admin User
+  - **Preconditions**: User must be logged in.
+  - **Postconditions**: User session is cleared, and they are redirected to the login page.
+
+- **Create Task**: Enables users to add a new task by providing a title, category, priority, and deadline. Tasks can optionally include a description.
+  - **Actors**: Regular User, Admin User
+  - **Preconditions**: User must be logged in.
+  - **Postconditions**: Task is created and added to the user’s task list.
+
+- **Edit Task**: Allows users to modify an existing task. Users can update the title, category, priority, deadline, or description.
+  - **Actors**: Regular User, Admin User
+  - **Preconditions**: User must have an existing task to edit.
+  - **Postconditions**: Task is updated with new details.
+
+- **Delete Task**: Enables users to remove an existing task. The system prompts for confirmation before deleting the task.
+  - **Actors**: Regular User, Admin User
+  - **Preconditions**: User must have an existing task to delete.
+  - **Postconditions**: Task is permanently removed from the system.
+
+- **View Tasks**: Allows users to view a list of tasks, with options to filter by category, priority, or deadline.
+  - **Actors**: Regular User, Admin User
+  - **Preconditions**: User must be logged in.
+  - **Postconditions**: Task list is displayed.
+
+- **Manage Users**: Allows an admin to manage user accounts. Admins can create, edit, or delete user accounts and assign roles.
+  - **Actors**: Admin User
+  - **Preconditions**: Admin must be logged in.
+  - **Postconditions**: User account is modified as requested.
+
+- **Manage Projects**: Enables admins to organize tasks into projects and assign tasks to users.
+  - **Actors**: Admin User
+  - **Preconditions**: Admin must be logged in.
+  - **Postconditions**: Project is created, updated, or deleted, and tasks are organized accordingly.
+
 - **User Authentication**: Secure login, error handling for invalid credentials, and session timeout.
 
 ### 3.3 Rationale for Your Use Case Model
