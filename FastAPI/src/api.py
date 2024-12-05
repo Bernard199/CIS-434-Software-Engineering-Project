@@ -101,7 +101,12 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.post("/tasks/", response_model=TaskCreate)
 def create_task(task: TaskCreate, db: Session = Depends(get_db)):
-    # Create a new task and associate it with a user
+    print(f"Received task data: {task}")  # Debug log to see incoming task data
+    db_user = db.query(User).filter(User.user_id == task.user_id).first()
+    if db_user is None:
+        print(f"User not found for user_id: {task.user_id}")  # Log if user_id is invalid
+        raise HTTPException(status_code=404, detail="User not found")
+
     db_task = Task(
         title=task.title,
         description=task.description,
@@ -113,7 +118,9 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db)):
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
+    print(f"Task created successfully: {db_task}")  # Log successful task creation
     return db_task
+
 
 @app.get("/tasks/{task_id}", response_model=TaskCreate)
 def get_task(task_id: int, db: Session = Depends(get_db)):
