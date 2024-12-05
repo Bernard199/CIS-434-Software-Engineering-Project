@@ -299,3 +299,8 @@ Expand:
 ## References
 
 - [GitHub Repository](https://github.com/Bernard199/CIS-434-Software-Engineering-Project)
+- [Project Plan](./Project%20Plan.md)
+- [Software Requirements Specification](./Software%20Requirements%20Specification.md)
+- [Software Design Specification](./Software%20Design%20Specification.md)
+- [Test Plan](./Test%20Plan.md)
+
