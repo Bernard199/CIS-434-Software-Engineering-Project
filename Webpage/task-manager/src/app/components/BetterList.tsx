@@ -21,8 +21,8 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, us
         const taskData = {
           title: task.title,
           description: task.description,
-          priority: task.priority,
-          deadline: task.deadline ? new Date(task.deadline).toISOString() : null,
+          priority: Number(task.priority),
+          deadline: task.deadline ? new Date(task.deadline).toISOString() : undefined,
           status: task.status,
           user_id: userId,
         };

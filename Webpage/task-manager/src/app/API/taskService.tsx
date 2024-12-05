@@ -1,5 +1,7 @@
 import axios from 'axios';
-const API_BASE_URL = 'http://10.0.0.52:8000'; 
+
+const API_BASE_URL = 'http://10.0.0.52:8000';  // Adjust to your API base URL or move to an environment variable.
+
 export interface Task {
   taskId?: number;
   title: string;
@@ -32,11 +34,14 @@ export const getTask = async (taskId: number): Promise<Task> => {
 
 export const createTask = async (taskData: Task): Promise<Task> => {
   try {
+    // Convert priority to a number to match the expected type
+    const priority = typeof taskData.priority === 'string' ? parseInt(taskData.priority, 10) : taskData.priority;
+
     const response = await axios.post(`${API_BASE_URL}/tasks/`, {
       title: taskData.title,
       description: taskData.description,
-      user_id: parseInt(taskData.user_id.toString(), 10), // Ensure user_id is a valid number
-      priority: taskData.priority ? parseInt(taskData.priority.toString(), 10) : 1, // Default to 1 if not provided
+      user_id: taskData.user_id, // Ensure user_id is a valid number
+      priority: priority ?? 1, // Default to 1 if not provided
       deadline: taskData.deadline ? new Date(taskData.deadline).toISOString() : null,
       status: taskData.status,
     });
