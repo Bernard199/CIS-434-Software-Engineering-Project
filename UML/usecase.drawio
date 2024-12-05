@@ -1,0 +1,87 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0" version="25.0.1">
+  <diagram name="Use Case Diagram" id="0">
+    <mxGraphModel dx="516" dy="685" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-2" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor1" target="usecase5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-3" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor1" target="usecase6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-4" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor1" target="usecase7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="actor1" value="" style="shape=actor;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="20" y="140" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-6" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor2" target="-X4D15CwzM9Sy7PKKTT4-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="actor2" value="" style="shape=actor;verticalAlign=top;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="20" y="400" width="60" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase1" value="Login" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="10" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase2" value="Register" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="130" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase3" value="Logout" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="200" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase4" value="Create Task" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="70" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase5" value="Edit Task" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="260" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase6" value="Delete Task" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="320" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase7" value="View Tasks" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="380" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="usecase8" value="Manage Users" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="440" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" style="rounded=0;orthogonalLoop=1;html=1;jettySize=auto;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="usecase1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="60" y="140" as="sourcePoint" />
+            <mxPoint x="300" y="40" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge2" style="rounded=0;orthogonalLoop=1;html=1;exitX=0.5;exitY=0;entryX=0;entryY=0.5;jettySize=auto;entryDx=0;entryDy=0;" parent="1" source="actor1" target="usecase2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" style="rounded=0;orthogonalLoop=1;html=1;exitX=0.5;exitY=0;entryX=0;entryY=0.5;jettySize=auto;entryDx=0;entryDy=0;" parent="1" source="actor1" target="usecase3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" style="rounded=0;orthogonalLoop=1;html=1;exitX=0.5;exitY=0;entryX=0;entryY=0.5;jettySize=auto;entryDx=0;entryDy=0;" parent="1" source="actor1" target="usecase4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" style="rounded=0;orthogonalLoop=1;html=1;exitX=0.5;exitY=0;jettySize=auto;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="actor2" target="usecase8" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="340" y="500" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-1" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="actor2" target="actor1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="60" y="299.28932188134524" as="sourcePoint" />
+            <mxPoint x="60" y="249.28932188134524" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-5" value="Manage Projects" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="500" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-7" value="Admin User" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="440" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-X4D15CwzM9Sy7PKKTT4-8" value="Regular User" style="text;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="30" y="180" width="70" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
