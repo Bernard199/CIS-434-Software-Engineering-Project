@@ -31,14 +31,14 @@ class User(Base):
 class Task(Base):
     __tablename__ = "tasks"
 
-    task_id = Column(Integer, primary_key=True, index=True)  # Auto-increment handled by default
-    title = Column(String(25), index=True, nullable=False)  # Title is required
-    description = Column(String(60), nullable=True)  # Description is optional
-    category = Column(String(25), nullable=True)  # Category is optional
-    priority = Column(Integer, default=1)  # Default priority is 1
-    deadline = Column(DateTime, nullable=True)  # Deadline is optional
-    status = Column(String(25), nullable=True)  # Status is optional (consider making it required based on business rules)
-    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)  # Foreign key to users table
+    task_id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(25), index=True, nullable=False)
+    description = Column(String(60), nullable=True)
+    category = Column(String(25), nullable=True)
+    priority = Column(Integer, default=1)
+    deadline = Column(DateTime, nullable=True)
+    status = Column(String(25), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
 
     # Relationship to User: many tasks belong to one user
     owner = relationship("User", back_populates="tasks")

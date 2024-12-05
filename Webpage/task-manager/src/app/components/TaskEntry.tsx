@@ -1,35 +1,33 @@
-// components/TaskEntry.tsx
 'use client'
 
 import { useState, FormEvent, useEffect } from 'react';
 
 export interface Task {
-  id: number;
+  taskId?: number;
   title: string;
-  description: string;
-  role: string;
-  deadline: string;
-  status: string;
-  completed: boolean;
-  category: string;
-  priority: string;
+  description?: string;
+  category?: string;
+  priority: number;
+  deadline?: string;
+  status?: string;
+  user_id: number;
 }
 
 interface TaskEntryProps {
   addTask: (task: Task) => void;
   editTask?: Task | null;
-  updateTask: (task: Task) => void;
+  updateTask: (taskId: number, updatedTask: Task) => void;
   resetEditTask: () => void;
+  currentUserId: number;
 }
 
-const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, resetEditTask }) => {
+const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, resetEditTask, currentUserId }) => {
   const [formFields, setFormFields] = useState<{ [key: string]: string }>({
     title: '',
     description: '',
-    role: '',
+    category: '',
     deadline: '',
     status: '',
-    category: '',
     priority: '',
   });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -39,12 +37,11 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     if (editTask) {
       setFormFields({
         title: editTask.title,
-        description: editTask.description,
-        role: editTask.role,
-        deadline: editTask.deadline,
-        status: editTask.status,
-        category: editTask.category,
-        priority: editTask.priority,
+        description: editTask.description || '',
+        category: editTask.category || '',
+        deadline: editTask.deadline || '',
+        status: editTask.status || '',
+        priority: editTask.priority?.toString() || '',
       });
       setIsModalOpen(true);
     }
@@ -53,11 +50,10 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
   const fieldConfig = [
     { name: 'title', placeholder: 'Task Title', type: 'text' },
     { name: 'description', placeholder: 'Task Description', type: 'text' },
-    { name: 'role', placeholder: 'Role', type: 'text' },
+    { name: 'category', placeholder: 'Task Category', type: 'text' },
     { name: 'deadline', placeholder: 'Deadline', type: 'date' },
     { name: 'status', placeholder: 'Status', type: 'text' },
-    { name: 'category', placeholder: 'Category', type: 'text' },
-    { name: 'priority', placeholder: 'Priority', type: 'text' },
+    { name: 'priority', placeholder: 'Priority', type: 'number' },
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +64,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     }));
   };
 
-  const handleAddTask = (e: FormEvent) => {
+  const handleAddOrUpdateTask = (e: FormEvent) => {
     e.preventDefault();
 
     const newErrors = [];
@@ -81,31 +77,30 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     }
 
     const newTask: Task = {
-      id: Date.now(),
+      taskId: editTask ? editTask.taskId : undefined,
       title: formFields.title,
       description: formFields.description,
-      role: formFields.role,
-      deadline: formFields.deadline,
-      status: formFields.status,
-      completed: false,
       category: formFields.category,
-      priority: formFields.priority,
+      user_id: currentUserId,
+      priority: parseInt(formFields.priority, 10),
+      deadline: formFields.deadline ? new Date(formFields.deadline).toISOString() : undefined,
+      status: formFields.status,
     };
 
     if (editTask) {
-      updateTask({ ...newTask, id: editTask.id });
+      updateTask(editTask.taskId!, newTask);
     } else {
       addTask(newTask);
     }
 
-    setFormFields({ title: '', description: '', role: '', deadline: '', status: '', category: '', priority: '' });
+    setFormFields({ title: '', description: '', category: '', deadline: '', status: '', priority: '' });
     setErrors([]);
     setIsModalOpen(false);
     resetEditTask();
   };
 
   const handleOpenAddTaskModal = () => {
-    setFormFields({ title: '', description: '', role: '', deadline: '', status: '', category: '', priority: '' });
+    setFormFields({ title: '', description: '', category: '', deadline: '', status: '', priority: '' });
     setIsModalOpen(true);
     resetEditTask();
   };
@@ -128,7 +123,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
               ✕
             </button>
 
-            <form onSubmit={handleAddTask} aria-labelledby="task-form-title">
+            <form onSubmit={handleAddOrUpdateTask} aria-labelledby="task-form-title">
               <h2 id="task-form-title" className="text-lg font-bold mb-4">
                 {editTask ? 'Edit Task' : 'Add Task'}
               </h2>

@@ -12,16 +12,16 @@ export default function Tasks() {
     setTasks([...tasks, task]);
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const deleteTask = (taskId: number) => {
+    setTasks(tasks.filter(task => task.taskId !== taskId));
   };
 
   const editTask = (task: Task) => {
     setTaskToEdit(task);
   };
 
-  const updateTask = (updatedTask: Task) => {
-    setTasks(tasks.map(task => (task.id === updatedTask.id ? updatedTask : task)));
+  const updateTask = (taskId: number, updatedTask: Task) => {
+    setTasks(tasks.map(task => (task.taskId === taskId ? updatedTask : task)));
     setTaskToEdit(null);
   };
 
@@ -34,10 +34,10 @@ export default function Tasks() {
       <div className="px-40 pt-10">
         {/* Task Entry */}
         <div className="shadow-lg rounded-md">
-          <BetterList tasks={tasks} deleteTask={deleteTask} editTask={editTask} />
+          <BetterList tasks={tasks} deleteTask={deleteTask} editTask={editTask} userId={1} />
           <div className="bg-neutral-100 p-1">
             <div className="flex items-center justify-center">
-              <TaskEntry addTask={addTask} editTask={taskToEdit} updateTask={updateTask} resetEditTask={resetEditTask} />
+              <TaskEntry addTask={addTask} editTask={taskToEdit} updateTask={updateTask} resetEditTask={resetEditTask} currentUserId={1} />
             </div>
           </div>
         </div>

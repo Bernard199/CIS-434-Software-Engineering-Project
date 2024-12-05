@@ -5,16 +5,15 @@ import { Task } from './TaskEntry';
 
 interface BetterListProps {
   tasks: Task[];
-  deleteTask: (id: number) => void;
+  deleteTask: (taskId: number) => void;
   editTask: (task: Task) => void;
-  userId: number; // User ID for whom tasks will be saved
+  userId: number;
 }
 
 const headers = ["TaskName", "Description", "Priority", "Deadline", "Status", "Actions"];
 const taskKeys = ["title", "description", "priority", "deadline", "status"];
 
 const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, userId }) => {
-  // Function to save tasks to the backend
   const handleSaveTasks = async () => {
     try {
       for (const task of tasks) {
@@ -60,7 +59,7 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, us
             </tr>
           ) : (
             tasks.map((task, index) => (
-              <tr key={task.id} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
+              <tr key={task.taskId} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
                 {taskKeys.map((key) => (
                   <td key={key} className="px-4 py-4 text-sm text-gray-800">
                     {task[key as keyof Task] || '-'}
@@ -68,7 +67,7 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, us
                 ))}
                 <td className="px-4 py-4 text-sm text-gray-800">
                   <button className="text-blue-600 mr-4" onClick={() => editTask(task)}>Edit</button>
-                  <button className="text-red-600" onClick={() => deleteTask(task.id)}>Delete</button>
+                  <button className="text-red-600" onClick={() => deleteTask(task.taskId!)}>Delete</button>
                 </td>
               </tr>
             ))

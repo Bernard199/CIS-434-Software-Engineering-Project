@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from .database import engine, Base, get_db
 from .models import User, Task
 
@@ -14,102 +14,54 @@ app = FastAPI()
 # Add CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust the list to the domains that are allowed to access your API.
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # You can specify the methods you want to allow or use ["GET", "POST", "PUT", "DELETE"].
-    allow_headers=["*"],  # You can specify the headers you want to allow.
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Pydantic schema for user creation and login
-class UserCreate(BaseModel):
-    username: str
-    password: str
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-# Pydantic schema for task creation and update
+# Pydantic models for request validation and response serialization
 class TaskCreate(BaseModel):
     title: str
-    description: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    priority: int
+    deadline: Optional[str] = None
+    status: Optional[str] = None
     user_id: int
-    priority: int = 1
-    deadline: str = None
-    status: str = None
 
 class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    priority: Optional[int] = None
+    deadline: Optional[str] = None
+    status: Optional[str] = None
+
+class TaskResponse(BaseModel):
+    task_id: int
     title: str
-    description: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    priority: int
+    deadline: Optional[str] = None
+    status: Optional[str] = None
+    user_id: int
 
-# User CRUD operations --------------------------------------------------------------------
+    class Config:
+        orm_mode = True
 
-@app.post("/users/", response_model=UserCreate)
-def create_user(user: UserCreate, db: Session = Depends(get_db)):
-    # Create a new user in the database without hashing the password
-    db_user = User(username=user.username, password=user.password)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-@app.post("/login/")
-def login(user: UserLogin, db: Session = Depends(get_db)):
-    # Check if the user exists
-    db_user = db.query(User).filter(User.username == user.username).first()
-    if db_user is None or db_user.password != user.password:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
-    # Mock token for simplicity
-    return {"token": f"mock-token-for-{user.username}"}
-
-@app.get("/users/{user_id}", response_model=UserCreate)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    # Get a user by ID
-    db_user = db.query(User).filter(User.user_id == user_id).first()
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-@app.get("/users/", response_model=List[UserCreate])
-def get_users(db: Session = Depends(get_db)):
-    # Get all users
-    return db.query(User).all()
-
-@app.put("/users/{user_id}", response_model=UserCreate)
-def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
-    # Update an existing user's details
-    db_user = db.query(User).filter(User.user_id == user_id).first()
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    db_user.username = user.username
-    db_user.password = user.password
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-@app.delete("/users/{user_id}")
-def delete_user(user_id: int, db: Session = Depends(get_db)):
-    # Delete a user from the database
-    db_user = db.query(User).filter(User.user_id == user_id).first()
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    db.delete(db_user)
-    db.commit()
-    return {"message": "User deleted successfully"}
-
-# Task CRUD operations --------------------------------------------------------------------
-
-@app.post("/tasks/", response_model=TaskCreate)
+# Revised CRUD operations for tasks
+@app.post("/tasks/", response_model=TaskResponse)
 def create_task(task: TaskCreate, db: Session = Depends(get_db)):
-    print(f"Received task data: {task}")  # Debug log to see incoming task data
     db_user = db.query(User).filter(User.user_id == task.user_id).first()
     if db_user is None:
-        print(f"User not found for user_id: {task.user_id}")  # Log if user_id is invalid
         raise HTTPException(status_code=404, detail="User not found")
 
     db_task = Task(
         title=task.title,
         description=task.description,
+        category=task.category,
         user_id=task.user_id,
         priority=task.priority,
         deadline=task.deadline,
@@ -118,38 +70,45 @@ def create_task(task: TaskCreate, db: Session = Depends(get_db)):
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
-    print(f"Task created successfully: {db_task}")  # Log successful task creation
     return db_task
 
-
-@app.get("/tasks/{task_id}", response_model=TaskCreate)
+@app.get("/tasks/{task_id}", response_model=TaskResponse)
 def get_task(task_id: int, db: Session = Depends(get_db)):
-    # Get a task by ID
     db_task = db.query(Task).filter(Task.task_id == task_id).first()
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return db_task
 
-@app.get("/tasks/", response_model=List[TaskCreate])
+@app.get("/tasks/", response_model=List[TaskResponse])
 def get_tasks(db: Session = Depends(get_db)):
-    # Get all tasks
     return db.query(Task).all()
 
-@app.put("/tasks/{task_id}", response_model=TaskCreate)
+@app.put("/tasks/{task_id}", response_model=TaskResponse)
 def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
-    # Update an existing task
     db_task = db.query(Task).filter(Task.task_id == task_id).first()
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
-    db_task.title = task.title
-    db_task.description = task.description
+    
+    # Update fields only if provided
+    if task.title is not None:
+        db_task.title = task.title
+    if task.description is not None:
+        db_task.description = task.description
+    if task.category is not None:
+        db_task.category = task.category
+    if task.priority is not None:
+        db_task.priority = task.priority
+    if task.deadline is not None:
+        db_task.deadline = task.deadline
+    if task.status is not None:
+        db_task.status = task.status
+
     db.commit()
     db.refresh(db_task)
     return db_task
 
 @app.delete("/tasks/{task_id}")
 def delete_task(task_id: int, db: Session = Depends(get_db)):
-    # Delete a task from the database
     db_task = db.query(Task).filter(Task.task_id == task_id).first()
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
