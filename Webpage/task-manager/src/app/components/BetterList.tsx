@@ -1,38 +1,43 @@
-import React from 'react';
-import { createTask } from '../API/taskService';
-import { Task } from './TaskEntry';
+import React, { useEffect, useState } from 'react';
+import { getTasks } from '../API/taskService';
+import TaskEntry, { Task } from './TaskEntry';
 
 interface BetterListProps {
   tasks: Task[];
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>; // Add setTasks prop type
   deleteTask: (taskId: number) => void;
   editTask: (task: Task) => void;
-  userId: number;
 }
 
 const headers = ["TaskName", "Description", "Category", "Priority", "Deadline", "Status", "Actions"];
 const taskKeys = ["title", "description", "category", "priority", "deadline", "status"];
 
-const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, userId }) => {
-  const handleSaveTasks = async () => {
-    try {
-      for (const task of tasks) {
-        const taskData = {
-          title: task.title,
-          description: task.description,
-          category: task.category,
-          priority: Number(task.priority),
-          deadline: task.deadline ? new Date(task.deadline).toISOString() : undefined,
-          status: task.status,
-          user_id: userId,
-        };
-        const response = await createTask(taskData);
-        console.log("Task saved successfully:", response);
-      }
-      alert('Tasks saved successfully!');
-    } catch (error: any) {
-      console.error('Failed to save tasks:', error);
-      alert('Failed to save tasks. Please check the console for more details.');
-    }
+const BetterList: React.FC<BetterListProps> = ({ tasks, setTasks, deleteTask, editTask }) => {
+  const [editTaskState, setEditTaskState] = useState<Task | null>(null);
+
+  // Function to add a new task to the list
+  const addTaskToList = (task: Task) => {
+    console.log("Adding task to list:", task);
+    setTasks((prevTasks) => [...prevTasks, task]);
+  };
+
+  // Function to update a task in the list
+  const updateTaskInList = (taskId: number, updatedTask: Task) => {
+    console.log("Updating task in list with ID:", taskId, "Updated Task:", updatedTask);
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => (task.taskId === taskId ? updatedTask : task))
+    );
+  };
+
+  // Function to handle editing a task
+  const handleEditTask = (task: Task) => {
+    console.log("Editing task:", task);
+    setEditTaskState(task);
+  };
+
+  // Function to reset the edit state
+  const handleResetEditTask = () => {
+    setEditTaskState(null);
   };
 
   return (
@@ -59,15 +64,22 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, us
             </tr>
           ) : (
             tasks.map((task, index) => (
-              <tr key={task.taskId} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
+              <tr key={task.taskId ?? index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                 {taskKeys.map((key) => (
                   <td key={key} className="px-4 py-4 text-sm text-gray-800">
                     {task[key as keyof Task] || '-'}
                   </td>
                 ))}
                 <td className="px-4 py-4 text-sm text-gray-800">
-                  <button className="text-blue-600 mr-4" onClick={() => editTask(task)}>Edit</button>
-                  <button className="text-red-600" onClick={() => deleteTask(task.taskId!)}>Delete</button>
+                  <button className="text-blue-600 mr-4" onClick={() => handleEditTask(task)}>Edit</button>
+                  <button className="text-red-600" onClick={() => {
+                    if (task.taskId) {
+                      console.log("Deleting task with ID:", task.taskId);
+                      deleteTask(task.taskId);
+                    } else {
+                      console.error("Task ID is undefined, cannot delete task:", task);
+                    }
+                  }}>Delete</button>
                 </td>
               </tr>
             ))
@@ -75,13 +87,15 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, deleteTask, editTask, us
         </tbody>
       </table>
 
-      <div className="flex justify-end">
-        <button
-          onClick={handleSaveTasks}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-700 transition-all duration-300"
-        >
-          Save Tasks
-        </button>
+      {/* Include the TaskEntry component below the task table */}
+      <div className="mt-4">
+        <TaskEntry
+          addTaskToList={addTaskToList}
+          editTask={editTaskState}
+          updateTask={updateTaskInList}
+          resetEditTask={handleResetEditTask}
+          currentUserId={1} // Use the appropriate current user ID here
+        />
       </div>
     </div>
   );

@@ -60,7 +60,7 @@ export default function NavBar() {
   const handleLogin = async (username: string, password: string) => {
     try {
       const response = await loginUser({ username, password });
-      localStorage.setItem('token', response.token);
+      localStorage.setItem('token', response.access_token);
       setUserLoggedIn(true);
       setLoginModalOpen(false);
       setToast({ type: 'success', message: 'Login successful' });

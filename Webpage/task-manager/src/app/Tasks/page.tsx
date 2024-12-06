@@ -1,27 +1,43 @@
-'use client'
+'use client';
 
-import { useState } from "react";
+import { deleteTask as deleteTaskApi, getTasks } from "../API/taskService";
+import { useEffect, useState } from "react";
 import BetterList from "../components/BetterList";
-import TaskEntry, { Task } from "../components/TaskEntry";
+import { Task } from "../components/TaskEntry";
 
 export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
-  const addTask = (task: Task) => {
-    setTasks([...tasks, task]);
-  };
+  // Fetch tasks from backend when component mounts
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const fetchedTasks = await getTasks();
+        setTasks(fetchedTasks);
+      } catch (error) {
+        console.error('Failed to fetch tasks:', error);
+      }
+    };
 
-  const deleteTask = (taskId: number) => {
-    setTasks(tasks.filter(task => task.taskId !== taskId));
+    fetchTasks();
+  }, []);
+
+  const deleteTask = async (id: number) => {
+    try {
+      await deleteTaskApi(id);
+      setTasks(tasks.filter(task => task.taskId !== id));
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
   };
 
   const editTask = (task: Task) => {
     setTaskToEdit(task);
   };
 
-  const updateTask = (taskId: number, updatedTask: Task) => {
-    setTasks(tasks.map(task => (task.taskId === taskId ? updatedTask : task)));
+  const updateTask = (updatedTask: Task) => {
+    setTasks(tasks.map(task => (task.taskId === updatedTask.taskId ? updatedTask : task)));
     setTaskToEdit(null);
   };
 
@@ -30,17 +46,15 @@ export default function Tasks() {
   };
 
   return (
-    <div>
-      <div className="px-40 pt-10">
-        {/* Task Entry */}
-        <div className="shadow-lg rounded-md">
-          <BetterList tasks={tasks} deleteTask={deleteTask} editTask={editTask} userId={1} />
-          <div className="bg-neutral-100 p-1">
-            <div className="flex items-center justify-center">
-              <TaskEntry addTask={addTask} editTask={taskToEdit} updateTask={updateTask} resetEditTask={resetEditTask} currentUserId={1} />
-            </div>
-          </div>
-        </div>
+    <div className="px-40 pt-10">
+      {/* Task List */}
+      <div className="shadow-lg rounded-md">
+        <BetterList
+          tasks={tasks}
+          setTasks={setTasks}
+          deleteTask={deleteTask}
+          editTask={editTask}
+        />
       </div>
     </div>
   );

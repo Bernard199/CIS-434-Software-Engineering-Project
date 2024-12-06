@@ -1,6 +1,7 @@
-'use client'
+'use client';
 
 import { useState, FormEvent, useEffect } from 'react';
+import { createTask } from '../API/taskService';
 
 export interface Task {
   taskId?: number;
@@ -14,14 +15,14 @@ export interface Task {
 }
 
 interface TaskEntryProps {
-  addTask: (task: Task) => void;
+  addTaskToList: (task: Task) => void; // Updated prop to add the task to the list immediately
   editTask?: Task | null;
   updateTask: (taskId: number, updatedTask: Task) => void;
   resetEditTask: () => void;
   currentUserId: number;
 }
 
-const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, resetEditTask, currentUserId }) => {
+const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTask, resetEditTask, currentUserId }) => {
   const [formFields, setFormFields] = useState<{ [key: string]: string }>({
     title: '',
     description: '',
@@ -33,8 +34,19 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
 
+  // Define the configuration for each form field
+  const fieldConfig = [
+    { name: 'title', placeholder: 'Task Title', type: 'text' },
+    { name: 'description', placeholder: 'Task Description', type: 'text' },
+    { name: 'category', placeholder: 'Task Category', type: 'text' },
+    { name: 'deadline', placeholder: 'Deadline', type: 'date' },
+    { name: 'status', placeholder: 'Status', type: 'text' },
+    { name: 'priority', placeholder: 'Priority', type: 'number' },
+  ];
+
   useEffect(() => {
-    if (editTask) {
+    if (editTask && editTask.taskId !== undefined) {
+      console.log("Setting form fields for edit:", editTask);
       setFormFields({
         title: editTask.title,
         description: editTask.description || '',
@@ -47,15 +59,6 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     }
   }, [editTask]);
 
-  const fieldConfig = [
-    { name: 'title', placeholder: 'Task Title', type: 'text' },
-    { name: 'description', placeholder: 'Task Description', type: 'text' },
-    { name: 'category', placeholder: 'Task Category', type: 'text' },
-    { name: 'deadline', placeholder: 'Deadline', type: 'date' },
-    { name: 'status', placeholder: 'Status', type: 'text' },
-    { name: 'priority', placeholder: 'Priority', type: 'number' },
-  ];
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormFields((prevFields) => ({
@@ -64,7 +67,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
     }));
   };
 
-  const handleAddOrUpdateTask = (e: FormEvent) => {
+  const handleAddOrUpdateTask = async (e: FormEvent) => {
     e.preventDefault();
 
     const newErrors = [];
@@ -87,10 +90,18 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
       status: formFields.status,
     };
 
-    if (editTask) {
-      updateTask(editTask.taskId!, newTask);
+    if (editTask && editTask.taskId !== undefined) {
+      console.log(`Attempting to update task with ID: ${editTask.taskId}`, newTask);
+      updateTask(editTask.taskId, newTask);
     } else {
-      addTask(newTask);
+      try {
+        console.log('Creating new task:', newTask);
+        const createdTask = await createTask(newTask);
+        addTaskToList(createdTask);
+      } catch (error) {
+        console.error('Failed to create task:', error);
+        return;
+      }
     }
 
     setFormFields({ title: '', description: '', category: '', deadline: '', status: '', priority: '' });
@@ -112,9 +123,11 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTask, editTask, updateTask, re
 
   return (
     <div>
-      <button onClick={handleOpenAddTaskModal} className="p-1 bg-blue-500 text-white rounded-md text-sm shadow-lg">
-        Add Task
-      </button>
+      <div className="flex justify-end mt-4">
+        <button onClick={handleOpenAddTaskModal} className="p-2 bg-blue-500 text-white rounded-md text-sm shadow-lg">
+          Add Task
+        </button>
+      </div>
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center transition-opacity duration-300">

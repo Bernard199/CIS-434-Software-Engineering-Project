@@ -3,14 +3,16 @@ import axios from 'axios';
 const API_BASE_URL = 'http://10.0.0.52:8000';  
 
 export interface Task {
+
   taskId?: number;
   title: string;
   description?: string;
-  priority?: number;
+  category?: string;
+  priority: number;
   deadline?: string;
   status?: string;
-  category?: string;
-  user_id?: number;
+  user_id: number;
+
 }
 
 const getAuthHeaders = () => {
@@ -20,36 +22,33 @@ const getAuthHeaders = () => {
   };
 };
 
+// Fetch tasks for the current authenticated user
 export const getTasks = async (): Promise<Task[]> => {
   try {
     const response = await axios.get(`${API_BASE_URL}/tasks/`, {
       headers: getAuthHeaders(),
     });
-    return response.data;
+
+    // Transform `task_id` to `taskId`
+    const transformedTasks = response.data.map((task: any) => ({
+      ...task,
+      taskId: task.task_id,
+    }));
+
+    return transformedTasks;
   } catch (error) {
     console.error('Failed to fetch tasks:', error);
     throw error;
   }
 };
 
+
 export const createTask = async (taskData: Task): Promise<Task> => {
   try {
-    // Get user_id from local storage
-    const user_id = localStorage.getItem('user_id');
-    if (!user_id) {
-      throw new Error('User ID is not available. Please log in again.');
-    }
-
-    // Attach the user_id to the task data
-    const taskWithUser = {
-      ...taskData,
-      user_id: parseInt(user_id, 10),
-    };
-
     // Log the payload being sent in the POST request
-    console.log("POST Request to /tasks/ with payload:", taskWithUser);
+    console.log("POST Request to /tasks/ with payload:", taskData);
 
-    const response = await axios.post(`${API_BASE_URL}/tasks/`, taskWithUser, {
+    const response = await axios.post(`${API_BASE_URL}/tasks/`, taskData, {
       headers: getAuthHeaders(),
     });
 
@@ -70,24 +69,29 @@ export const createTask = async (taskData: Task): Promise<Task> => {
 
 export const updateTask = async (taskId: number, taskData: Partial<Task>): Promise<Task> => {
   try {
+    console.log(`Attempting to update task with ID: ${taskId}`, taskData);
     const response = await axios.put(`${API_BASE_URL}/tasks/${taskId}`, taskData, {
       headers: getAuthHeaders(),
     });
+    console.log(`Successfully updated task with ID: ${taskId}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to update task:', error);
+    console.error(`Failed to update task with ID: ${taskId}`, error);
     throw error;
   }
 };
 
+
 export const deleteTask = async (taskId: number): Promise<{ message: string }> => {
   try {
+    console.log(`Attempting to delete task with ID: ${taskId}`);
     const response = await axios.delete(`${API_BASE_URL}/tasks/${taskId}`, {
       headers: getAuthHeaders(),
     });
+    console.log(`Successfully deleted task with ID: ${taskId}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to delete task:', error);
+    console.error(`Failed to delete task with ID: ${taskId}`, error);
     throw error;
   }
 };
