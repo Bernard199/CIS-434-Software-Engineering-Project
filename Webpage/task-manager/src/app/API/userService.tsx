@@ -9,9 +9,18 @@ export interface User {
   roleId?: number;
 }
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('access_token');
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+};
+
 export const getUsers = async (): Promise<User[]> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/users/`);
+    const response = await axios.get(`${API_BASE_URL}/users/`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch users:', error);
@@ -21,7 +30,9 @@ export const getUsers = async (): Promise<User[]> => {
 
 export const getUser = async (userId: number): Promise<User> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/users/${userId}`);
+    const response = await axios.get(`${API_BASE_URL}/users/${userId}`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error('Failed to fetch user:', error);
@@ -39,7 +50,7 @@ export const createUser = async (userData: User): Promise<User> => {
   }
 };
 
-export const loginUser = async (credentials: { username: string; password: string }): Promise<{ access_token: string; token_type: string }> => {
+export const loginUser = async (credentials: { username: string; password: string }): Promise<{ access_token: string; token_type: string; user_id: number }> => {
   try {
     const formData = new URLSearchParams();
     formData.append('username', credentials.username);
@@ -50,6 +61,14 @@ export const loginUser = async (credentials: { username: string; password: strin
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
+
+    // Assuming the user ID is in the response, which must be adjusted in the backend to include it.
+    const user_id = response.data.user_id; // Adjust this based on your API response.
+    
+    // Store user_id and token in localStorage for further authenticated requests.
+    localStorage.setItem('user_id', user_id);
+    localStorage.setItem('access_token', response.data.access_token);
+
     return response.data;
   } catch (error) {
     console.error('Failed to login:', error);
@@ -59,7 +78,9 @@ export const loginUser = async (credentials: { username: string; password: strin
 
 export const updateUser = async (userId: number, userData: Partial<User>): Promise<User> => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/users/${userId}`, userData);
+    const response = await axios.put(`${API_BASE_URL}/users/${userId}`, userData, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error('Failed to update user:', error);
@@ -69,7 +90,9 @@ export const updateUser = async (userId: number, userData: Partial<User>): Promi
 
 export const deleteUser = async (userId: number): Promise<{ message: string }> => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/users/${userId}`);
+    const response = await axios.delete(`${API_BASE_URL}/users/${userId}`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error('Failed to delete user:', error);

@@ -8,7 +8,9 @@ from .database import engine, Base, get_db
 from .models import User, Task
 from passlib.context import CryptContext
 import jwt
+from jwt import PyJWTError
 from datetime import datetime, timedelta
+import os
 
 # Create the tables in the database (if not already created)
 Base.metadata.create_all(bind=engine)
@@ -18,14 +20,14 @@ app = FastAPI()
 # Add CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Security configurations
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = os.getenv("SECRET_KEY", "your_default_secret_key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -51,7 +53,6 @@ class TaskCreate(BaseModel):
     priority: int
     deadline: Optional[datetime] = None  # Use datetime for proper validation
     status: Optional[str] = None
-    user_id: int
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = None
@@ -69,7 +70,6 @@ class TaskResponse(BaseModel):
     priority: int
     deadline: Optional[datetime] = None
     status: Optional[str] = None
-    user_id: int
 
     class Config:
         from_attributes = True
@@ -91,18 +91,29 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+# Dependency to get the current authenticated user
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    except PyJWTError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 # Revised CRUD operations for tasks
 @app.post("/tasks/", response_model=TaskResponse)
-def create_task(task: TaskCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.user_id == task.user_id).first()
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-
+def create_task(task: TaskCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     db_task = Task(
         title=task.title,
         description=task.description,
         category=task.category,
-        user_id=task.user_id,
+        user_id=current_user.user_id,
         priority=task.priority,
         deadline=task.deadline,
         status=task.status
@@ -120,12 +131,12 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
     return db_task
 
 @app.get("/tasks/", response_model=List[TaskResponse])
-def get_tasks(db: Session = Depends(get_db)):
-    return db.query(Task).all()
+def get_tasks(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return db.query(Task).filter(Task.user_id == current_user.user_id).all()
 
 @app.put("/tasks/{task_id}", response_model=TaskResponse)
-def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
-    db_task = db.query(Task).filter(Task.task_id == task_id).first()
+def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_task = db.query(Task).filter(Task.task_id == task_id, Task.user_id == current_user.user_id).first()
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     
@@ -148,8 +159,8 @@ def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
     return db_task
 
 @app.delete("/tasks/{task_id}")
-def delete_task(task_id: int, db: Session = Depends(get_db)):
-    db_task = db.query(Task).filter(Task.task_id == task_id).first()
+def delete_task(task_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_task = db.query(Task).filter(Task.task_id == task_id, Task.user_id == current_user.user_id).first()
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     db.delete(db_task)
