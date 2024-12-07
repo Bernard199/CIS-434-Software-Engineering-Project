@@ -1,43 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { getTasks } from '../API/taskService';
 import TaskEntry, { Task } from './TaskEntry';
 
-interface BetterListProps {
+interface TaskListProps {
   tasks: Task[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>; // Add setTasks prop type
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   deleteTask: (taskId: number) => void;
   editTask: (task: Task) => void;
 }
 
+// Define table headers and corresponding keys for display
 const headers = ["TaskName", "Description", "Category", "Priority", "Deadline", "Status", "Actions"];
 const taskKeys = ["title", "description", "category", "priority", "deadline", "status"];
 
-const BetterList: React.FC<BetterListProps> = ({ tasks, setTasks, deleteTask, editTask }) => {
+const TaskList: React.FC<TaskListProps> = ({ tasks, setTasks, deleteTask, editTask }) => {
   const [editTaskState, setEditTaskState] = useState<Task | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // Function to add a new task to the list
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null; // Prevent server-side rendering issues
+
+  // Add a new task to the list
   const addTaskToList = (task: Task) => {
-    console.log("Adding task to list:", task);
     setTasks((prevTasks) => [...prevTasks, task]);
   };
 
-  // Function to update a task in the list
+  // Update an existing task in the list
   const updateTaskInList = (taskId: number, updatedTask: Task) => {
-    console.log("Updating task in list with ID:", taskId, "Updated Task:", updatedTask);
     setTasks((prevTasks) =>
-      prevTasks.map((task) => (task.taskId === taskId ? updatedTask : task))
+      prevTasks.map((t) => (t.taskId === taskId ? updatedTask : t))
     );
-  };
-
-  // Function to handle editing a task
-  const handleEditTask = (task: Task) => {
-    console.log("Editing task:", task);
-    setEditTaskState(task);
-  };
-
-  // Function to reset the edit state
-  const handleResetEditTask = () => {
-    setEditTaskState(null);
   };
 
   return (
@@ -67,38 +61,27 @@ const BetterList: React.FC<BetterListProps> = ({ tasks, setTasks, deleteTask, ed
               <tr key={task.taskId ?? index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
                 {taskKeys.map((key) => (
                   <td key={key} className="px-4 py-4 text-sm text-gray-800">
-                    {task[key as keyof Task] || '-'}
+                    {task[key as keyof Task] ?? '-'}
                   </td>
                 ))}
                 <td className="px-4 py-4 text-sm text-gray-800">
-                  <button className="text-blue-600 mr-4" onClick={() => handleEditTask(task)}>Edit</button>
-                  <button className="text-red-600" onClick={() => {
-                    if (task.taskId) {
-                      console.log("Deleting task with ID:", task.taskId);
-                      deleteTask(task.taskId);
-                    } else {
-                      console.error("Task ID is undefined, cannot delete task:", task);
-                    }
-                  }}>Delete</button>
+                  <button className="text-blue-600 mr-4" onClick={() => setEditTaskState(task)}>
+                    Edit
+                  </button>
+                  <button
+                    className="text-red-600"
+                    onClick={() => task.taskId && deleteTask(task.taskId)}
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))
           )}
         </tbody>
       </table>
-
-      {/* Include the TaskEntry component below the task table */}
-      <div className="mt-4">
-        <TaskEntry
-          addTaskToList={addTaskToList}
-          editTask={editTaskState}
-          updateTask={updateTaskInList}
-          resetEditTask={handleResetEditTask}
-          currentUserId={1} // Use the appropriate current user ID here
-        />
-      </div>
     </div>
   );
 };
 
-export default BetterList;
+export default TaskList;

@@ -1,61 +1,74 @@
 'use client';
 
-import { deleteTask as deleteTaskApi, getTasks } from "../API/taskService";
-import { useEffect, useState } from "react";
-import BetterList from "../components/BetterList";
-import { Task } from "../components/TaskEntry";
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import TaskList from '../components/TaskList';
+import TaskEntry, { Task } from '../components/TaskEntry';
 
-export default function Tasks() {
+export default function TasksPage() {
+  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  // Fetch tasks from backend when component mounts
+  // Fetch tasks from the API
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const fetchedTasks = await getTasks();
+        const response = await fetch('/api/task', { method: 'GET' });
+        if (!response.ok) {
+          throw new Error('Failed to fetch tasks');
+        }
+        const fetchedTasks = await response.json();
         setTasks(fetchedTasks);
       } catch (error) {
-        console.error('Failed to fetch tasks:', error);
+        console.error(error);
       }
     };
 
     fetchTasks();
   }, []);
 
-  const deleteTask = async (id: number) => {
+  // Delete a task
+  const deleteTask = async (taskId: number) => {
     try {
-      await deleteTaskApi(id);
-      setTasks(tasks.filter(task => task.taskId !== id));
+      const response = await fetch('/api/task', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task_id: taskId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
+      }
+
+      // Update local state and refresh page
+      setTasks((prevTasks) => prevTasks.filter((task) => task.taskId !== taskId));
+      router.refresh();
     } catch (error) {
-      console.error('Failed to delete task:', error);
+      console.error(error);
     }
   };
 
-  const editTask = (task: Task) => {
-    setTaskToEdit(task);
-  };
-
-  const updateTask = (updatedTask: Task) => {
-    setTasks(tasks.map(task => (task.taskId === updatedTask.taskId ? updatedTask : task)));
-    setTaskToEdit(null);
-  };
-
-  const resetEditTask = () => {
-    setTaskToEdit(null);
-  };
-
   return (
-    <div className="px-40 pt-10">
-      {/* Task List */}
-      <div className="shadow-lg rounded-md">
-        <BetterList
-          tasks={tasks}
-          setTasks={setTasks}
-          deleteTask={deleteTask}
-          editTask={editTask}
-        />
-      </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Tasks</h1>
+      <TaskList
+        tasks={tasks}
+        setTasks={setTasks}
+        deleteTask={deleteTask}
+        editTask={setEditingTask}
+      />
+      <TaskEntry
+        addTaskToList={(task) => setTasks((prev) => [...prev, task])}
+        editTask={editingTask}
+        updateTaskInList={(id, updatedTask) =>
+          setTasks((prev) =>
+            prev.map((task) => (task.taskId === id ? updatedTask : task))
+          )
+        }
+        resetEditTask={() => setEditingTask(null)}
+        currentUserId={1}
+      />
     </div>
   );
 }
