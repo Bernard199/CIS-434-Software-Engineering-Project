@@ -4,7 +4,26 @@ import { verifyToken } from '@/lib/auth';
 
 const prisma = new PrismaClient();
 
+function setCorsHeaders(response: NextResponse) {
+  response.headers.set('Access-Control-Allow-Origin', 'https://project.corpustemp.com/'); 
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  return response;
+}
+
+// Handle preflight OPTIONS requests
+export async function OPTIONS(request: Request) {
+  const headers = new Headers();
+  headers.set('Access-Control-Allow-Origin', 'https://project.corpustemp.com/'); 
+  headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  headers.set('Access-Control-Allow-Credentials', 'true');
+  return new Response(null, { headers, status: 204 });
+}
+
 export async function GET(request: Request) {
+  let response;
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -17,20 +36,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
     }
 
-    // Check if user exists
-    const existingUser = await prisma.users.findUnique({
-      where: { user_id },
-    });
-
-    if (!existingUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
-    }
-
-    // Fetch user's tasks
-    const userTasks = await prisma.tasks.findMany({
-      where: { user_id },
-    });
-
+    const userTasks = await prisma.tasks.findMany({ where: { user_id } });
     const transformedTasks = userTasks.map((task) => ({
       taskId: task.task_id,
       title: task.title,
@@ -41,54 +47,36 @@ export async function GET(request: Request) {
       status: task.status,
     }));
 
-    return NextResponse.json(transformedTasks, { status: 200 });
+    response = NextResponse.json(transformedTasks, { status: 200 });
   } catch (error: any) {
     console.error('GET Error:', error.message);
-    return NextResponse.json({ error: 'Error fetching tasks' }, { status: 500 });
+    response = NextResponse.json({ error: 'Error fetching tasks' }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }
+
+  return setCorsHeaders(response);
 }
 
 export async function POST(request: Request) {
+  let response;
   try {
     const authHeader = request.headers.get('authorization');
-    console.log('Authorization header:', authHeader);
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.log('Missing or invalid Authorization header');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const token = authHeader.split(' ')[1];
     const user_id = verifyToken(token);
-    console.log('Decoded user_id from token:', user_id);
-
     if (!user_id) {
-      console.log('Invalid or expired token');
       return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
     }
 
     const body = await request.json();
-    console.log('Request body:', body);
-
     const { title, description, role, priority, deadline, status, category } = body;
 
-    // Validate required fields
     if (!title) {
-      console.log('Missing title');
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
-    }
-
-    // Check if the user from the token exists
-    const existingUser = await prisma.users.findUnique({
-      where: { user_id },
-    });
-    console.log('Found user in DB:', existingUser);
-
-    if (!existingUser) {
-      console.log('User not found in DB');
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
     }
 
     const newTask = await prisma.tasks.create({
@@ -104,132 +92,24 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log('Task created successfully:', newTask);
-    return NextResponse.json({
-      taskId: newTask.task_id,
-      title: newTask.title,
-      description: newTask.description,
-      category: newTask.category,
-      priority: newTask.priority,
-      deadline: newTask.deadline ? newTask.deadline.toISOString().split('T')[0] : null,
-      status: newTask.status,
-    }, { status: 201 });
+    response = NextResponse.json(
+      {
+        taskId: newTask.task_id,
+        title: newTask.title,
+        description: newTask.description,
+        category: newTask.category,
+        priority: newTask.priority,
+        deadline: newTask.deadline ? newTask.deadline.toISOString().split('T')[0] : null,
+        status: newTask.status,
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     console.error('POST Error:', error.message);
-    return NextResponse.json({ error: 'Error creating task' }, { status: 500 });
+    response = NextResponse.json({ error: 'Error creating task' }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }
-}
 
-export async function PUT(request: Request) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const user_id = verifyToken(token);
-    if (!user_id) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { taskId, title, description, category, priority, deadline, status } = body;
-
-    if (!taskId) {
-      return NextResponse.json({ error: 'Task ID is required' }, { status: 400 });
-    }
-
-    if (!title) {
-      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
-    }
-
-    // Check if the user exists
-    const existingUser = await prisma.users.findUnique({ where: { user_id } });
-    if (!existingUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 401 });
-    }
-
-    // Check if the task belongs to this user
-    const existingTask = await prisma.tasks.findUnique({
-      where: { task_id: taskId },
-    });
-
-    if (!existingTask || existingTask.user_id !== user_id) {
-      return NextResponse.json({ error: 'Task not found or not owned by user' }, { status: 404 });
-    }
-
-    const updatedTask = await prisma.tasks.update({
-      where: { task_id: taskId },
-      data: {
-        title,
-        description: description || null,
-        category: category || null,
-        priority: priority || 1,
-        deadline: deadline ? new Date(deadline) : null,
-        status: status || 'Pending',
-      },
-    });
-
-    return NextResponse.json({
-      taskId: updatedTask.task_id,
-      title: updatedTask.title,
-      description: updatedTask.description,
-      category: updatedTask.category,
-      priority: updatedTask.priority,
-      deadline: updatedTask.deadline ? updatedTask.deadline.toISOString().split('T')[0] : null,
-      status: updatedTask.status,
-    }, { status: 200 });
-
-  } catch (error: any) {
-    console.error('PUT Error:', error.message);
-    return NextResponse.json({ error: 'Error updating task' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
-export async function DELETE(request: Request) {
-  try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const user_id = verifyToken(token);
-
-    if (!user_id) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { task_id } = body;
-
-    if (!task_id) {
-      return NextResponse.json({ error: 'Task ID is required' }, { status: 400 });
-    }
-
-    // Check if the task belongs to this user
-    const existingTask = await prisma.tasks.findUnique({
-      where: { task_id },
-    });
-
-    if (!existingTask || existingTask.user_id !== user_id) {
-      return NextResponse.json({ error: 'Task not found or not owned by user' }, { status: 404 });
-    }
-
-    await prisma.tasks.delete({
-      where: { task_id },
-    });
-
-    return NextResponse.json({ message: 'Task deleted successfully' }, { status: 200 });
-  } catch (error: any) {
-    console.error('DELETE Error:', error.message);
-    return NextResponse.json({ error: 'Error deleting task' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
+  return setCorsHeaders(response);
 }

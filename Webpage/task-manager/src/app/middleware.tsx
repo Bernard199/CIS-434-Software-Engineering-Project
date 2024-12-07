@@ -25,6 +25,16 @@ export function middleware(request: NextRequest) {
   console.log('Allowed Origins:', allowedOrigins);
   console.log('Request Origin:', origin);
 
+  // Handle preflight OPTIONS requests
+  if (request.method === 'OPTIONS') {
+    const headers = new Headers();
+    headers.set('Access-Control-Allow-Origin', '*'); // Replace '*' with specific origins
+    headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    headers.set('Access-Control-Allow-Credentials', 'true');
+    return new Response(null, { headers, status: 204 });
+  }
+
   // Handle CORS for allowed origins
   if (origin && isAllowedOrigin(origin)) {
     console.log(`CORS allowed for origin: ${origin}`);
@@ -33,22 +43,16 @@ export function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     response.headers.set('Access-Control-Allow-Credentials', 'true');
-
-    // Handle preflight OPTIONS requests
-    if (request.method === 'OPTIONS') {
-      return new NextResponse(null, { status: 204, headers: response.headers });
-    }
-
     return response;
   }
 
-  // Reject requests from disallowed origins with a generic response
+  // Reject requests from disallowed origins
   if (origin && !isAllowedOrigin(origin)) {
     console.warn(`CORS denied for origin: ${origin}`);
     return new NextResponse('CORS origin not allowed', { status: 403 });
   }
 
-  // Handle requests without an Origin header (e.g., server-to-server requests)
+  // Handle requests without an Origin header
   return NextResponse.next();
 }
 
