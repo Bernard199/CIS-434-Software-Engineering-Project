@@ -15,3 +15,5 @@ This project is aimed at developing a simple, easy-to-use task management softwa
 - [Software Requirements Specification](./Software%20Requirements%20Specification.md)
 - [Software Design Specification](./Software%20Design%20Specification.md)
 - [Test Plan](./Test%20Plan.md)
+- [User Manual](./UserManual.md)
+- [Developer Guide](./DeveloperGuide.md)
