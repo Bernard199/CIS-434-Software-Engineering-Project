@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Toast from './toast';
+import Toast from './Toast';
 
 export default function NavBar() {
   const router = useRouter();
