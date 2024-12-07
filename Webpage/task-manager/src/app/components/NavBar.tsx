@@ -35,28 +35,36 @@ export default function NavBar() {
   // Check login status
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log('Token in localStorage:', token);
     setUserLoggedIn(!!token);
   }, []);
 
   // Handle Login
   const handleLogin = async () => {
     try {
+      console.log('Attempting to login with:', loginCredentials);
+
       const response = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...loginCredentials, action: 'login' }),
       });
 
+      console.log('Login response status:', response.status);
+
       if (!response.ok) {
         throw new Error('Login failed');
       }
 
       const data = await response.json();
+      console.log('Login response data:', data);
+
       localStorage.setItem('token', data.token);
       setUserLoggedIn(true);
       setToast({ type: 'success', message: 'Login successful' });
       closeModals();
     } catch (error: any) {
+      console.error('Login error:', error);
       setToast({ type: 'error', message: error.message });
     }
   };
@@ -64,11 +72,15 @@ export default function NavBar() {
   // Handle Sign-Up
   const handleSignUp = async () => {
     try {
+      console.log('Attempting to sign up with:', signUpCredentials);
+
       const response = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...signUpCredentials, action: 'signup' }),
       });
+
+      console.log('Sign-Up response status:', response.status);
 
       if (!response.ok) {
         throw new Error('Sign-Up failed');
@@ -77,25 +89,42 @@ export default function NavBar() {
       setToast({ type: 'success', message: 'Sign-Up successful' });
       closeModals();
     } catch (error: any) {
+      console.error('Sign-Up error:', error);
       setToast({ type: 'error', message: error.message });
     }
   };
 
   // Handle Logout
   const handleLogout = () => {
+    console.log('Logging out...');
     localStorage.removeItem('token');
     setUserLoggedIn(false);
     setToast({ type: 'success', message: 'Logged out successfully' });
     router.push('/');
   };
 
+  // Navigation with debug logs
+  const navigateToPage = (path: string) => {
+    console.log(`Navigating to ${path}`);
+    router.push(path);
+  };
+
   return (
     <>
       {/* Toast Notifications */}
-      {toast && <Toast type={toast.type} message={toast.message} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => {
+            console.log('Closing toast');
+            setToast(null);
+          }}
+        />
+      )}
 
       <header className="flex justify-between items-center p-4 bg-white shadow-md">
-        <div className="text-lg font-bold cursor-pointer" onClick={() => router.push('/')}>
+        <div className="text-lg font-bold cursor-pointer" onClick={() => navigateToPage('/')}>
           Task Manager
         </div>
 
@@ -103,10 +132,16 @@ export default function NavBar() {
         <nav className={`lg:flex items-center space-x-4 ${isMenuOpen ? 'block' : 'hidden'} lg:block`}>
           {isUserLoggedIn && (
             <>
-              <button className="text-gray-600 hover:text-blue-500" onClick={() => router.push('/HomePage')}>
+              <button
+                className="text-gray-600 hover:text-blue-500"
+                onClick={() => navigateToPage('/HomePage')}
+              >
                 Home
               </button>
-              <button className="text-gray-600 hover:text-blue-500" onClick={() => router.push('/tasks')}>
+              <button
+                className="text-gray-600 hover:text-blue-500"
+                onClick={() => navigateToPage('/tasks')}
+              >
                 Tasks
               </button>
             </>
