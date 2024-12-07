@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col items-center py-10">
