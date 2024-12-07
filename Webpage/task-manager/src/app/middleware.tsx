@@ -1,8 +1,8 @@
+
+import dotenv from 'dotenv';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import dotenv from 'dotenv';
 
-// Load environment variables from .env
 dotenv.config();
 
 // Load environment variables

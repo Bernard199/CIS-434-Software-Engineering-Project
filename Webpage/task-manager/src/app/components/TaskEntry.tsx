@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, FormEvent, useEffect } from 'react';
-import { createTask } from '../API/taskService';
+import { useState, useEffect, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 
 export interface Task {
   taskId?: number;
@@ -11,157 +11,200 @@ export interface Task {
   priority: number;
   deadline?: string;
   status?: string;
-  user_id: number;
 }
 
 interface TaskEntryProps {
-  addTaskToList: (task: Task) => void; // Updated prop to add the task to the list immediately
+  addTaskToList: (task: Task) => Promise<void>; 
   editTask?: Task | null;
-  updateTask: (taskId: number, updatedTask: Task) => void;
+  updateTaskInList: (taskId: number, updatedTask: Task) => Promise<void>;
   resetEditTask: () => void;
   currentUserId: number;
 }
 
-const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTask, resetEditTask, currentUserId }) => {
-  const [formFields, setFormFields] = useState<{ [key: string]: string }>({
+const TaskEntry: React.FC<TaskEntryProps> = ({
+  addTaskToList,
+  editTask,
+  updateTaskInList,
+  resetEditTask,
+  currentUserId,
+}) => {
+  const router = useRouter();
+  const [formFields, setFormFields] = useState<Record<string, string>>({
     title: '',
     description: '',
     category: '',
+    priority: '',
     deadline: '',
     status: '',
-    priority: '',
   });
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<string[]>([]);
-
-  // Define the configuration for each form field
-  const fieldConfig = [
-    { name: 'title', placeholder: 'Task Title', type: 'text' },
-    { name: 'description', placeholder: 'Task Description', type: 'text' },
-    { name: 'category', placeholder: 'Task Category', type: 'text' },
-    { name: 'deadline', placeholder: 'Deadline', type: 'date' },
-    { name: 'status', placeholder: 'Status', type: 'text' },
-    { name: 'priority', placeholder: 'Priority', type: 'number' },
-  ];
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (editTask && editTask.taskId !== undefined) {
-      console.log("Setting form fields for edit:", editTask);
+    if (editTask) {
+      // When editTask is set, populate the form fields and open the modal
       setFormFields({
-        title: editTask.title,
+        title: editTask.title || '',
         description: editTask.description || '',
         category: editTask.category || '',
+        priority: editTask.priority.toString() || '',
         deadline: editTask.deadline || '',
         status: editTask.status || '',
-        priority: editTask.priority?.toString() || '',
       });
       setIsModalOpen(true);
     }
   }, [editTask]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormFields((prevFields) => ({
-      ...prevFields,
-      [name]: value,
-    }));
+  // Reset form fields when not editing
+  const handleOpenAddTask = () => {
+    resetEditTask();
+    setFormFields({
+      title: '',
+      description: '',
+      category: '',
+      priority: '',
+      deadline: '',
+      status: '',
+    });
+    setIsModalOpen(true);
   };
 
-  const handleAddOrUpdateTask = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormFields({
+      ...formFields,
+      [e.target.name]: e.target.value,
+    });
+  };
 
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
     const newErrors = [];
     if (!formFields.title) newErrors.push('Title is required');
     if (!formFields.priority) newErrors.push('Priority is required');
-
-    if (newErrors.length > 0) {
+    if (newErrors.length) {
       setErrors(newErrors);
       return;
     }
 
-    const newTask: Task = {
-      taskId: editTask ? editTask.taskId : undefined,
+    const task: Task = {
+      taskId: editTask?.taskId,
       title: formFields.title,
       description: formFields.description,
       category: formFields.category,
-      user_id: currentUserId,
       priority: parseInt(formFields.priority, 10),
-      deadline: formFields.deadline ? new Date(formFields.deadline).toISOString() : undefined,
+      deadline: formFields.deadline || undefined,
       status: formFields.status,
     };
 
-    if (editTask && editTask.taskId !== undefined) {
-      console.log(`Attempting to update task with ID: ${editTask.taskId}`, newTask);
-      updateTask(editTask.taskId, newTask);
-    } else {
-      try {
-        console.log('Creating new task:', newTask);
-        const createdTask = await createTask(newTask);
-        addTaskToList(createdTask);
-      } catch (error) {
-        console.error('Failed to create task:', error);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        console.error('No token found. Please log in first.');
         return;
       }
+
+      const method = editTask ? 'PUT' : 'POST';
+      const response = await fetch('/api/task', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(task),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save task');
+      }
+
+      const savedTask = await response.json();
+
+      if (editTask) {
+        await updateTaskInList(task.taskId!, savedTask);
+      } else {
+        await addTaskToList(savedTask);
+      }
+
+      resetEditTask();
+      setIsModalOpen(false);
+      setFormFields({
+        title: '',
+        description: '',
+        category: '',
+        priority: '',
+        deadline: '',
+        status: '',
+      });
+      setErrors([]);
+
+      // No need to refresh the page; state updates will handle re-rendering
+    } catch (error) {
+      console.error('Error saving task:', error);
     }
-
-    setFormFields({ title: '', description: '', category: '', deadline: '', status: '', priority: '' });
-    setErrors([]);
-    setIsModalOpen(false);
-    resetEditTask();
-  };
-
-  const handleOpenAddTaskModal = () => {
-    setFormFields({ title: '', description: '', category: '', deadline: '', status: '', priority: '' });
-    setIsModalOpen(true);
-    resetEditTask();
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    resetEditTask();
   };
 
   return (
     <div>
-      <div className="flex justify-end mt-4">
-        <button onClick={handleOpenAddTaskModal} className="p-2 bg-blue-500 text-white rounded-md text-sm shadow-lg">
+      {/* Center the button using a wrapper with text-center */}
+      <div className="text-center my-4">
+        <button
+          onClick={handleOpenAddTask} // Reset form fields before opening
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+        >
           Add Task
         </button>
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center transition-opacity duration-300">
-          <div className="relative bg-white p-10 w-80 rounded-md shadow-lg transition-transform transform scale-100 opacity-100">
-            <button onClick={handleCloseModal} className="absolute top-2 right-2 text-gray-500 hover:text-gray-800">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96 relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500"
+              onClick={() => {
+                setIsModalOpen(false);
+                resetEditTask();
+                setFormFields({
+                  title: '',
+                  description: '',
+                  category: '',
+                  priority: '',
+                  deadline: '',
+                  status: '',
+                });
+                setErrors([]);
+              }}
+            >
               ✕
             </button>
-
-            <form onSubmit={handleAddOrUpdateTask} aria-labelledby="task-form-title">
-              <h2 id="task-form-title" className="text-lg font-bold mb-4">
-                {editTask ? 'Edit Task' : 'Add Task'}
-              </h2>
-
+            <h2 className="text-lg font-bold mb-4">
+              {editTask ? 'Edit Task' : 'Add Task'}
+            </h2>
+            <form onSubmit={handleSubmit}>
+              {(Object.keys(formFields) as Array<keyof typeof formFields>).map((key) => (
+                <div key={key} className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </label>
+                  <input
+                    name={key}
+                    type={key === 'priority' ? 'number' : key === 'deadline' ? 'date' : 'text'}
+                    value={formFields[key]}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded"
+                  />
+                </div>
+              ))}
               {errors.length > 0 && (
-                <div className="mb-4 text-red-500">
+                <div className="text-red-500 mb-4">
                   {errors.map((error, idx) => (
                     <p key={idx}>{error}</p>
                   ))}
                 </div>
               )}
-
-              {fieldConfig.map((field) => (
-                <div key={field.name} className="mb-4">
-                  <input
-                    type={field.type}
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    value={formFields[field.name]}
-                    onChange={handleInputChange}
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-              ))}
-              <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded-md">
+              <button
+                type="submit"
+                className="w-full bg-blue-500 text-white py-2 rounded"
+              >
                 {editTask ? 'Update Task' : 'Add Task'}
               </button>
             </form>

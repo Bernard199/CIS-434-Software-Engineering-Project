@@ -1,61 +1,113 @@
 'use client';
 
-import { deleteTask as deleteTaskApi, getTasks } from "../API/taskService";
-import { useEffect, useState } from "react";
-import BetterList from "../components/BetterList";
-import { Task } from "../components/TaskEntry";
+import { useState, useEffect } from 'react';
+import TaskList from '../components/TaskList';
+import TaskEntry, { Task } from '../components/TaskEntry';
 
-export default function Tasks() {
+export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  // Fetch tasks from backend when component mounts
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const fetchedTasks = await getTasks();
-        setTasks(fetchedTasks);
-      } catch (error) {
-        console.error('Failed to fetch tasks:', error);
-      }
-    };
-
-    fetchTasks();
-  }, []);
-
-  const deleteTask = async (id: number) => {
+  // A reusable function to fetch tasks from the server
+  const fetchTasks = async () => {
     try {
-      await deleteTaskApi(id);
-      setTasks(tasks.filter(task => task.taskId !== id));
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        console.error('No token found. Please log in first.');
+        return;
+      }
+
+      const response = await fetch('/api/task', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+
+      const fetchedTasks = await response.json();
+
+      const transformedTasks: Task[] = fetchedTasks.map((t: any) => ({
+        taskId: t.taskId || t.task_id,
+        title: t.title,
+        description: t.description,
+        category: t.category,
+        priority: t.priority,
+        deadline: t.deadline,
+        status: t.status
+      }));
+
+      setTasks(transformedTasks);
     } catch (error) {
-      console.error('Failed to delete task:', error);
+      console.error(error);
     }
   };
 
-  const editTask = (task: Task) => {
-    setTaskToEdit(task);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // Delete a task and refresh the list
+  const deleteTask = async (taskId: number) => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        console.error('No token found. Please log in first.');
+        return;
+      }
+
+      const response = await fetch('/api/task', {
+        method: 'DELETE',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ task_id: taskId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
+      }
+
+      // After deleting, re-fetch tasks
+      await fetchTasks();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const updateTask = (updatedTask: Task) => {
-    setTasks(tasks.map(task => (task.taskId === updatedTask.taskId ? updatedTask : task)));
-    setTaskToEdit(null);
+  // Handle adding a new task
+  const handleAddTask = async (newTask: Task) => {
+    // After adding, re-fetch tasks to ensure data is in sync
+    await fetchTasks();
   };
 
-  const resetEditTask = () => {
-    setTaskToEdit(null);
+  // Handle updating an existing task
+  const handleUpdateTask = async (id: number, updatedTask: Task) => {
+    // After updating, re-fetch tasks to ensure data is in sync
+    await fetchTasks();
   };
 
   return (
-    <div className="px-40 pt-10">
-      {/* Task List */}
-      <div className="shadow-lg rounded-md">
-        <BetterList
-          tasks={tasks}
-          setTasks={setTasks}
-          deleteTask={deleteTask}
-          editTask={editTask}
-        />
-      </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Tasks</h1>
+      <TaskList
+        tasks={tasks}
+        setTasks={setTasks}
+        deleteTask={deleteTask}
+        editTask={setEditingTask}
+      />
+      <TaskEntry
+        addTaskToList={handleAddTask}
+        editTask={editingTask}
+        updateTaskInList={handleUpdateTask}
+        resetEditTask={() => setEditingTask(null)}
+        currentUserId={1} // Replace with actual user ID if needed
+      />
     </div>
   );
 }
