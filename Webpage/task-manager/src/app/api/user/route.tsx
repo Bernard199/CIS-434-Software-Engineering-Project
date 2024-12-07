@@ -17,8 +17,22 @@ export async function POST(request: Request) {
     }
 
     if (action === 'signup') {
-      // No uniqueness check. Multiple users can have the same username.
+      // Check if a user with the same username already exists
+      const existingUser = await prisma.users.findFirst({
+        where: { username },
+      });
+
+      if (existingUser) {
+        return NextResponse.json(
+          { success: false, error: 'Username already taken' },
+          { status: 409 } // 409 Conflict
+        );
+      }
+
+      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create the new user
       const newUser = await prisma.users.create({
         data: {
           username,
@@ -34,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     if (action === 'login') {
-      // Use findFirst since username is not unique.
+      // Use findFirst since username is not unique yet
       const user = await prisma.users.findFirst({
         where: { username },
       });

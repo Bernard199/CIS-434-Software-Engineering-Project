@@ -1,5 +1,7 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
-import TaskEntry, { Task } from './TaskEntry';
+import { Task } from './TaskEntry';
 
 interface TaskListProps {
   tasks: Task[];
@@ -13,7 +15,6 @@ const headers = ["TaskName", "Description", "Category", "Priority", "Deadline", 
 const taskKeys = ["title", "description", "category", "priority", "deadline", "status"];
 
 const TaskList: React.FC<TaskListProps> = ({ tasks, setTasks, deleteTask, editTask }) => {
-  const [editTaskState, setEditTaskState] = useState<Task | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -22,20 +23,8 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, setTasks, deleteTask, editTa
 
   if (!isClient) return null; // Prevent server-side rendering issues
 
-  // Add a new task to the list
-  const addTaskToList = (task: Task) => {
-    setTasks((prevTasks) => [...prevTasks, task]);
-  };
-
-  // Update an existing task in the list
-  const updateTaskInList = (taskId: number, updatedTask: Task) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((t) => (t.taskId === taskId ? updatedTask : t))
-    );
-  };
-
   return (
-    <div className="font-sans overflow-x-auto">
+    <div className="font-sans overflow-x-auto rounded-lg shadow-lg">
       <table className="min-w-full divide-y divide-gray-200 mb-4">
         <thead className="bg-gray-100">
           <tr>
@@ -65,7 +54,10 @@ const TaskList: React.FC<TaskListProps> = ({ tasks, setTasks, deleteTask, editTa
                   </td>
                 ))}
                 <td className="px-4 py-4 text-sm text-gray-800">
-                  <button className="text-blue-600 mr-4" onClick={() => setEditTaskState(task)}>
+                  <button
+                    className="text-blue-600 mr-4"
+                    onClick={() => editTask(task)}
+                  >
                     Edit
                   </button>
                   <button

@@ -1,39 +1,71 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import TaskList from '../components/TaskList';
 import TaskEntry, { Task } from '../components/TaskEntry';
 
 export default function TasksPage() {
-  const router = useRouter();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  // Fetch tasks from the API
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await fetch('/api/task', { method: 'GET' });
-        if (!response.ok) {
-          throw new Error('Failed to fetch tasks');
-        }
-        const fetchedTasks = await response.json();
-        setTasks(fetchedTasks);
-      } catch (error) {
-        console.error(error);
+  // A reusable function to fetch tasks from the server
+  const fetchTasks = async () => {
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        console.error('No token found. Please log in first.');
+        return;
       }
-    };
 
+      const response = await fetch('/api/task', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+
+      const fetchedTasks = await response.json();
+
+      const transformedTasks: Task[] = fetchedTasks.map((t: any) => ({
+        taskId: t.taskId || t.task_id,
+        title: t.title,
+        description: t.description,
+        category: t.category,
+        priority: t.priority,
+        deadline: t.deadline,
+        status: t.status
+      }));
+
+      setTasks(transformedTasks);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
     fetchTasks();
   }, []);
 
-  // Delete a task
+  // Delete a task and refresh the list
   const deleteTask = async (taskId: number) => {
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (!token) {
+        console.error('No token found. Please log in first.');
+        return;
+      }
+
       const response = await fetch('/api/task', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ task_id: taskId }),
       });
 
@@ -41,12 +73,23 @@ export default function TasksPage() {
         throw new Error('Failed to delete task');
       }
 
-      // Update local state and refresh page
-      setTasks((prevTasks) => prevTasks.filter((task) => task.taskId !== taskId));
-      router.refresh();
+      // After deleting, re-fetch tasks
+      await fetchTasks();
     } catch (error) {
       console.error(error);
     }
+  };
+
+  // Handle adding a new task
+  const handleAddTask = async (newTask: Task) => {
+    // After adding, re-fetch tasks to ensure data is in sync
+    await fetchTasks();
+  };
+
+  // Handle updating an existing task
+  const handleUpdateTask = async (id: number, updatedTask: Task) => {
+    // After updating, re-fetch tasks to ensure data is in sync
+    await fetchTasks();
   };
 
   return (
@@ -59,15 +102,11 @@ export default function TasksPage() {
         editTask={setEditingTask}
       />
       <TaskEntry
-        addTaskToList={(task) => setTasks((prev) => [...prev, task])}
+        addTaskToList={handleAddTask}
         editTask={editingTask}
-        updateTaskInList={(id, updatedTask) =>
-          setTasks((prev) =>
-            prev.map((task) => (task.taskId === id ? updatedTask : task))
-          )
-        }
+        updateTaskInList={handleUpdateTask}
         resetEditTask={() => setEditingTask(null)}
-        currentUserId={1}
+        currentUserId={1} // Replace with actual user ID if needed
       />
     </div>
   );

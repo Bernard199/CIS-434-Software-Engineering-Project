@@ -14,14 +14,20 @@ export interface Task {
 }
 
 interface TaskEntryProps {
-  addTaskToList: (task: Task) => void;
+  addTaskToList: (task: Task) => Promise<void>; 
   editTask?: Task | null;
-  updateTaskInList: (taskId: number, updatedTask: Task) => void;
+  updateTaskInList: (taskId: number, updatedTask: Task) => Promise<void>;
   resetEditTask: () => void;
   currentUserId: number;
 }
 
-const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTaskInList, resetEditTask, currentUserId }) => {
+const TaskEntry: React.FC<TaskEntryProps> = ({
+  addTaskToList,
+  editTask,
+  updateTaskInList,
+  resetEditTask,
+  currentUserId,
+}) => {
   const router = useRouter();
   const [formFields, setFormFields] = useState<Record<string, string>>({
     title: '',
@@ -36,6 +42,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTa
 
   useEffect(() => {
     if (editTask) {
+      // When editTask is set, populate the form fields and open the modal
       setFormFields({
         title: editTask.title || '',
         description: editTask.description || '',
@@ -47,6 +54,20 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTa
       setIsModalOpen(true);
     }
   }, [editTask]);
+
+  // Reset form fields when not editing
+  const handleOpenAddTask = () => {
+    resetEditTask();
+    setFormFields({
+      title: '',
+      description: '',
+      category: '',
+      priority: '',
+      deadline: '',
+      status: '',
+    });
+    setIsModalOpen(true);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormFields({
@@ -82,11 +103,12 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTa
         return;
       }
 
+      const method = editTask ? 'PUT' : 'POST';
       const response = await fetch('/api/task', {
-        method: editTask ? 'PUT' : 'POST',
-        headers: { 
+        method,
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(task),
       });
@@ -96,10 +118,11 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTa
       }
 
       const savedTask = await response.json();
+
       if (editTask) {
-        updateTaskInList(task.taskId!, savedTask);
+        await updateTaskInList(task.taskId!, savedTask);
       } else {
-        addTaskToList(savedTask);
+        await addTaskToList(savedTask);
       }
 
       resetEditTask();
@@ -114,7 +137,7 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTa
       });
       setErrors([]);
 
-      router.refresh();
+      // No need to refresh the page; state updates will handle re-rendering
     } catch (error) {
       console.error('Error saving task:', error);
     }
@@ -122,10 +145,10 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTa
 
   return (
     <div>
-      {/* Center the button using a wrapper with text-center or flex justify-center */}
+      {/* Center the button using a wrapper with text-center */}
       <div className="text-center my-4">
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenAddTask} // Reset form fields before opening
           className="px-4 py-2 bg-blue-500 text-white rounded"
         >
           Add Task
@@ -140,6 +163,15 @@ const TaskEntry: React.FC<TaskEntryProps> = ({ addTaskToList, editTask, updateTa
               onClick={() => {
                 setIsModalOpen(false);
                 resetEditTask();
+                setFormFields({
+                  title: '',
+                  description: '',
+                  category: '',
+                  priority: '',
+                  deadline: '',
+                  status: '',
+                });
+                setErrors([]);
               }}
             >
               ✕

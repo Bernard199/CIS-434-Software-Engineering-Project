@@ -30,7 +30,7 @@ export default function Toast({ type, message, onClose }: ToastProps) {
 
   return (
     <div
-      className={`fixed top-4 right-4 p-4 text-white rounded shadow-lg ${getBgColor()}`}
+      className={`fixed bottom-4 right-4 p-4 text-white rounded shadow-lg ${getBgColor()}`}
     >
       {message}
     </div>
