@@ -1,79 +1,33 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Task } from './TaskEntry';
 
 interface TaskListProps {
   tasks: Task[];
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
-  deleteTask: (taskId: number) => void;
+  deleteTask: (taskId: number) => Promise<void>;
   editTask: (task: Task) => void;
 }
 
-// Define table headers and corresponding keys for display
-const headers = ["TaskName", "Description", "Category", "Priority", "Deadline", "Status", "Actions"];
-const taskKeys = ["title", "description", "category", "priority", "deadline", "status"];
-
-const TaskList: React.FC<TaskListProps> = ({ tasks, setTasks, deleteTask, editTask }) => {
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) return null; // Prevent server-side rendering issues
-
+export default function TaskList({ tasks, deleteTask, editTask }: TaskListProps) {
   return (
-    <div className="font-sans overflow-x-auto rounded-lg shadow-lg">
-      <table className="min-w-full divide-y divide-gray-200 mb-4">
-        <thead className="bg-gray-100">
-          <tr>
-            {headers.map((header) => (
-              <th
-                key={header}
-                className="px-4 py-4 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider whitespace-nowrap"
-              >
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {tasks.length === 0 ? (
-            <tr>
-              <td colSpan={headers.length} className="px-4 py-4 text-center text-sm text-gray-800">
-                No tasks available
-              </td>
-            </tr>
-          ) : (
-            tasks.map((task, index) => (
-              <tr key={task.taskId ?? index} className={index % 2 === 0 ? "bg-gray-50" : "bg-white"}>
-                {taskKeys.map((key) => (
-                  <td key={key} className="px-4 py-4 text-sm text-gray-800">
-                    {task[key as keyof Task] ?? '-'}
-                  </td>
-                ))}
-                <td className="px-4 py-4 text-sm text-gray-800">
-                  <button
-                    className="text-blue-600 mr-4"
-                    onClick={() => editTask(task)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-600"
-                    onClick={() => task.taskId && deleteTask(task.taskId)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+    <ul className="task-list">
+      {tasks.map((task) => (
+        <li key={task.taskId} className="task-item">
+          <h3>{task.title}</h3>
+          <p>{task.description}</p>
+          <button
+            className="btn-edit"
+            onClick={() => editTask(task)}
+          >
+            Edit
+          </button>
+          <button
+            className="btn-delete"
+            onClick={() => deleteTask(task.taskId)}
+          >
+            Delete
+          </button>
+        </li>
+      ))}
+    </ul>
   );
-};
-
-export default TaskList;
+}
