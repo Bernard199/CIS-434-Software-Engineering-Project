@@ -8,9 +8,6 @@ Welcome to the **Task Manager**! This application helps you manage your tasks ef
 2. [Creating a Task](#creating-a-task)
 3. [Editing a Task](#editing-a-task)
 4. [Deleting a Task](#deleting-a-task)
-5. [Managing Task Categories](#managing-task-categories)
-6. [Search and Filter](#search-and-filter)
-7. [Help and Support](#help-and-support)
 
 ## Getting Started
 
@@ -55,17 +52,6 @@ Once logged in, you will see the task list dashboard. Here you can:
 1. Find the task you wish to delete.
 2. Click the **Delete** button next to the task.
 3. Confirm the deletion when prompted.
-
-## Managing Task Categories
-
-You can manage the categories for your tasks. To add, edit, or delete categories, use the settings menu available in the dashboard.
-
-## Search and Filter
-
-To find specific tasks, use the search bar at the top of the task list. You can filter tasks based on:
-- Category
-- Status
-- Priority
 
 
 
