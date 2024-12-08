@@ -52,9 +52,9 @@ The frontend of the application is built with **Next.js** and **React**. The mai
 
 ### Backend (API)
 
-The backend is powered by **FastAPI** and **PostgreSQL**. The main components are:
+The backend is powered by **Prisma** and **PostgreSQL**. The main components are:
 
-*   **app**: Contains the FastAPI app and all routes.
+*   **app**: Contains the Prisma app and all routes.
 *   **models**: Database models for tasks and users.
 *   **services**: Business logic related to tasks and users.
 
@@ -73,10 +73,18 @@ Ensure the frontend dependencies are installed using `npm install`.
 
 ### Backend
 
-Set up the FastAPI server. You will need **Python 3.x** and **pipx** to manage environments.
-
-    pipx install fastapi uvicorn
-    uvicorn app.main:app --reload
+Set up the Prisma server using npm.
+* Install Prisma
+  
+      npm install prisma
+  
+* Invoke the Prisma CLI
+  
+      npx prisma
+  
+* Set up your Prisma ORM project by creating your Prisma schema file template
+  
+      npx prisma init
 
 API Integration
 ---------------
