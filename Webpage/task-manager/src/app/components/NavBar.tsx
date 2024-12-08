@@ -14,7 +14,6 @@ export default function NavBar() {
   const [loginCredentials, setLoginCredentials] = useState({ username: '', password: '' });
   const [signUpCredentials, setSignUpCredentials] = useState({ username: '', password: '' });
 
-  // Toggle functions
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
   const openLoginModal = () => {
@@ -32,55 +31,41 @@ export default function NavBar() {
     setSignUpModalOpen(false);
   };
 
-  // Check login status
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log('Token in localStorage:', token);
     setUserLoggedIn(!!token);
   }, []);
 
-  // Handle Login
   const handleLogin = async () => {
     try {
-      console.log('Attempting to login with:', loginCredentials);
-
       const response = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...loginCredentials, action: 'login' }),
       });
 
-      console.log('Login response status:', response.status);
-
       if (!response.ok) {
         throw new Error('Login failed');
       }
 
       const data = await response.json();
-      console.log('Login response data:', data);
-
       localStorage.setItem('token', data.token);
       setUserLoggedIn(true);
       setToast({ type: 'success', message: 'Login successful' });
       closeModals();
+      router.push('/tasks'); // Redirect to tasks page after successful login
     } catch (error: any) {
-      console.error('Login error:', error);
       setToast({ type: 'error', message: error.message });
     }
   };
 
-  // Handle Sign-Up
   const handleSignUp = async () => {
     try {
-      console.log('Attempting to sign up with:', signUpCredentials);
-
       const response = await fetch('/api/user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...signUpCredentials, action: 'signup' }),
       });
-
-      console.log('Sign-Up response status:', response.status);
 
       if (!response.ok) {
         throw new Error('Sign-Up failed');
@@ -89,49 +74,58 @@ export default function NavBar() {
       setToast({ type: 'success', message: 'Sign-Up successful' });
       closeModals();
     } catch (error: any) {
-      console.error('Sign-Up error:', error);
       setToast({ type: 'error', message: error.message });
     }
   };
 
-  // Handle Logout
   const handleLogout = () => {
-    console.log('Logging out...');
     localStorage.removeItem('token');
     setUserLoggedIn(false);
     setToast({ type: 'success', message: 'Logged out successfully' });
     router.push('/');
   };
 
-  // Navigation with debug logs
   const navigateToPage = (path: string) => {
-    console.log(`Navigating to ${path}`);
     router.push(path);
   };
 
+  // Close menu when resizing to a large screen
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <>
-      {/* Toast Notifications */}
       {toast && (
         <Toast
           type={toast.type}
           message={toast.message}
-          onClose={() => {
-            console.log('Closing toast');
-            setToast(null);
-          }}
+          onClose={() => setToast(null)}
         />
       )}
 
-      <header className="flex justify-between items-center p-4 bg-white shadow-md">
-        <div className="text-lg font-bold cursor-pointer" onClick={() => navigateToPage('/')}>
+      <header className="relative flex items-center p-4 bg-white shadow-md">
+        {/* Left: Logo */}
+        <div
+          className="text-lg font-bold cursor-pointer"
+          onClick={() => navigateToPage('/')}
+        >
           Task Manager
         </div>
 
-        {/* Navigation Links */}
-        <nav className={`lg:flex items-center space-x-4 ${isMenuOpen ? 'block' : 'hidden'} lg:block`}>
+        {/* Center: Home & Tasks (visible on large screens and only if logged in) */}
+        <div className="hidden lg:flex-1 lg:flex lg:items-center lg:justify-center">
           {isUserLoggedIn && (
-            <>
+            <div className="flex space-x-4">
               <button
                 className="text-gray-600 hover:text-blue-500"
                 onClick={() => navigateToPage('/HomePage')}
@@ -144,34 +138,115 @@ export default function NavBar() {
               >
                 Tasks
               </button>
-            </>
+            </div>
           )}
-        </nav>
+        </div>
 
-        {/* User Actions */}
-        <div className="flex items-center space-x-4">
+        {/* Right: User Actions (visible on large screens) */}
+        <div className="hidden lg:flex items-center space-x-4">
           {!isUserLoggedIn ? (
             <>
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-full" onClick={openLoginModal}>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-full"
+                onClick={openLoginModal}
+              >
                 Login
               </button>
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-full" onClick={openSignUpModal}>
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-full"
+                onClick={openSignUpModal}
+              >
                 Sign Up
               </button>
             </>
           ) : (
-            <button className="px-4 py-2 bg-gray-200 rounded-full" onClick={handleLogout}>
+            <button
+              className="px-4 py-2 bg-gray-200 rounded-full"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           )}
         </div>
+
+        {/* Hamburger Menu (Mobile) */}
+        <button
+          className="lg:hidden flex flex-col items-center justify-center space-y-1 ml-auto"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+        >
+          <span className="block w-6 h-0.5 bg-gray-700"></span>
+          <span className="block w-6 h-0.5 bg-gray-700"></span>
+          <span className="block w-6 h-0.5 bg-gray-700"></span>
+        </button>
+
+        {/* Mobile Dropdown Menu */}
+        {isMenuOpen && (
+          <div className="absolute top-full right-4 mt-2 bg-white shadow-lg p-4 rounded-lg z-50 w-48">
+            {isUserLoggedIn ? (
+              <div className="flex flex-col space-y-2">
+                <button
+                  className="text-gray-700 hover:text-blue-500 text-left"
+                  onClick={() => {
+                    navigateToPage('/HomePage');
+                    setMenuOpen(false);
+                  }}
+                >
+                  Home
+                </button>
+                <button
+                  className="text-gray-700 hover:text-blue-500 text-left"
+                  onClick={() => {
+                    navigateToPage('/tasks');
+                    setMenuOpen(false);
+                  }}
+                >
+                  Tasks
+                </button>
+                <button
+                  className="text-gray-700 hover:text-red-500 text-left"
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col space-y-2">
+                <button
+                  className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                  onClick={() => {
+                    openLoginModal();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Login
+                </button>
+                <button
+                  className="w-full text-left px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+                  onClick={() => {
+                    openSignUpModal();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Login Modal */}
       {isLoginModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="relative bg-white p-4 rounded shadow-lg w-80">
-            <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={closeModals}>
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={closeModals}
+            >
               ✕
             </button>
             <h2 className="text-lg font-bold">Login</h2>
@@ -196,9 +271,12 @@ export default function NavBar() {
 
       {/* Sign-Up Modal */}
       {isSignUpModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="relative bg-white p-4 rounded shadow-lg w-80">
-            <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700" onClick={closeModals}>
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={closeModals}
+            >
               ✕
             </button>
             <h2 className="text-lg font-bold">Sign Up</h2>
