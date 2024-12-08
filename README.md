@@ -18,4 +18,4 @@ This project is aimed at developing a simple, easy-to-use task management softwa
 - [User Manual](./UserManual.md)
 - [Developer Guide](./DeveloperGuide.md)
 
-- App Page: [https://project.corpustemp.com/](https://project.corpustemp.com/)
+- [App Preview Page](https://project.corpustemp.com/)
