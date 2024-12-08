@@ -111,10 +111,9 @@ Run the tests using Jest:
 
 ### Backend
 
-Use `swagger-ui` for testing FastAPI endpoints:
+Use `Prisma Studio` for testing API endpoints:
 
-    swagger-ui
-[https://fastapi.tiangolo.com/](https://fastapi.tiangolo.com/).     
+[https://www.prisma.io/studio](https://www.prisma.io/studio).     
 
 Contributing
 ------------
