@@ -19,3 +19,5 @@ This project is aimed at developing a simple, easy-to-use task management softwa
 - [Developer Guide](./DeveloperGuide.md)
 
 - [App Preview Page](https://project.corpustemp.com/)
+
+- [License](./LICENSE)
