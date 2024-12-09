@@ -38,7 +38,8 @@ This project is aimed at developing a simple, easy-to-use task management softwa
 - [Dell Poweredge r720](https://www.dell.com/en-us/shop/productdetails/poweredge-r720?sk=r720)
  
 ### Software Stack
-- [Proxmox VM](https://www.proxmox.com)
+- [pfSense](https://www.pfsense.org/)
+- [Proxmox](https://www.proxmox.com)
 - [Ubuntu Server](https://ubuntu.com/download/server)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Nginx](https://nginx.org/en/)
