@@ -1,5 +1,3 @@
 # FastAPI
 
----
-
 ### Replaced
