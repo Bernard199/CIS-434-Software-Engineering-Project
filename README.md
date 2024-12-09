@@ -47,3 +47,5 @@ This project is aimed at developing a simple, easy-to-use task management softwa
 
 ### Replaced
 - [FastAPI](https://fastapi.tiangolo.com/)
+---
+FastAPI was replaced with Prisma, which has native integration with Next.js
