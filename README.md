@@ -21,3 +21,29 @@ This project is aimed at developing a simple, easy-to-use task management softwa
 - [App Preview Page](https://project.corpustemp.com/)
 
 - [License](./LICENSE)
+
+## Development and Deployment: Tools, Hardware, & Software Stack
+
+### Tools
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [pgAdmin](https://www.postgresql.org/)
+- [Git](https://git-scm.com/)
+- [Github](https://github.com/)
+- [Neovim](https://neovim.io/)
+- [Nano](https://www.nano-editor.org/download.php)
+- [OpenSSH](https://www.openssh.com/)
+  
+  
+### Hardware
+- [Dell Poweredge r720](https://www.dell.com/en-us/shop/productdetails/poweredge-r720?sk=r720)
+ 
+### Software Stack
+- [Proxmox VM](https://www.proxmox.com)
+- [Ubuntu Server](https://ubuntu.com/download/server)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Nginx](https://nginx.org/en/)
+- [Prisma](https://www.prisma.io/nextjs)
+- [Next.js](https://nextjs.org)
+
+### Replaced
+- [FastAPI](https://fastapi.tiangolo.com/)
